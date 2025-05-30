@@ -1,6 +1,15 @@
 {
-  "buildCommand": "cd moodmix && npm ci && npm run build",
-  "devCommand": "cd moodmix && npm run dev",
-  "installCommand": "cd moodmix && npm install",
-  "outputDirectory": "moodmix/.next"
+  "version": 2,
+  "builds": [
+    {
+      "src": "moodmix/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/moodmix/$1"
+    }
+  ]
 }

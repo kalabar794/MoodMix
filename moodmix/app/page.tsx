@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import MoodWheel from '@/components/MoodWheel'
+import MoodCardSelector from '@/components/MoodCardSelector'
 import BackgroundAnimation from '@/components/BackgroundAnimation'
 import MusicResults from '@/components/MusicResults'
 import { MoodSelection } from '@/lib/types'
@@ -143,20 +143,17 @@ export default function Home() {
                     </motion.div>
                   </div>
 
-                  {/* Premium Mood Wheel Container */}
+                  {/* Premium Mood Card Selector */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ 
                       delay: 0.6,
-                      duration: 1,
-                      ease: [0.34, 1.56, 0.64, 1]
+                      duration: 0.8,
+                      ease: [0.25, 0.46, 0.45, 0.94]
                     }}
-                    className="flex justify-center"
                   >
-                    <div className="glass-ultra p-12">
-                      <MoodWheel onMoodSelect={handleMoodSelect} />
-                    </div>
+                    <MoodCardSelector onMoodSelect={handleMoodSelect} />
                   </motion.div>
 
                   {/* Floating Elements */}

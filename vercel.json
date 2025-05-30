@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd moodmix && npm ci && npm run build",
+  "devCommand": "cd moodmix && npm run dev",
+  "installCommand": "cd moodmix && npm install",
+  "outputDirectory": "moodmix/.next"
+}

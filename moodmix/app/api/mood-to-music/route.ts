@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
     const description = getMoodDescription(moodSelection)
 
     // Log for debugging
-    console.log(`Mood: ${moodSelection.primary}, Intensity: ${moodSelection.intensity}, Tracks found: ${tracks.length}`)
+    // Log for development - remove in production
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Mood: ${moodSelection.primary}, Intensity: ${moodSelection.intensity}, Tracks found: ${tracks.length}`)
+    }
 
     return NextResponse.json({
       success: true,

@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "security-check": "../scripts/security-check.sh",
+    "audit-security": "npm audit --audit-level=high",
+    "prebuild": "npm run security-check"
   },
   "dependencies": {
     "@radix-ui/react-slider": "^1.3.5",

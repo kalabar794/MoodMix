@@ -27,9 +27,25 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Local env files
+# SECURITY: Environment files with secrets
 .env*.local
 .env
+.env.production
+.env.development
+.env.backup
+*.env
+*secrets*
+*credentials*
+*keys*
+
+# SECURITY: API keys and tokens
+api-keys.json
+secrets.json
+tokens.json
+*.key
+*.pem
+*.p12
+*.pfx
 
 # Vercel
 .vercel
@@ -43,19 +59,30 @@ next-env.d.ts
 .idea/
 *.swp
 *.swo
+.history/
 
 # Backups
 *.tar.gz
 *.zip
+*.backup
 
 # Logs
 logs
 *.log
 server.log
+error.log
+access.log
 
 # OS
 Thumbs.db
+.DS_Store
+desktop.ini
 
 # Temporary files
 *.tmp
 *.temp
+*.cache
+
+# Security scanners
+.security/
+security-report.*

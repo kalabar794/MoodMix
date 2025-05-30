@@ -134,3 +134,4 @@ Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  GET / 200 in 46ms
  GET /api/health 200 in 58ms
+   Reload env: .env.local

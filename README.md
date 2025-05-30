@@ -155,3 +155,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Made with ❤️ and 🎵 by the MoodMix team
+
+🚀 **Live Demo**: [https://mood-mix-theta.vercel.app/](https://mood-mix-theta.vercel.app/)

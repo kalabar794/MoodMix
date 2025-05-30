@@ -44,36 +44,36 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative overflow-hidden">
-      {/* Premium Background System */}
-      <div className="background-premium" />
-      <div className={`gradient-mesh-overlay ${currentMood ? `mood-${currentMood.primary}` : ''}`} />
+      {/* Modern Background System */}
+      <div className="modern-bg" />
+      <div className={`gradient-overlay ${currentMood ? `mood-${currentMood.primary}` : ''}`} />
       
       {/* Dynamic background animation */}
       <BackgroundAnimation mood={currentMood} />
       
       {/* Main Content Container */}
       <div className="relative z-10">
-        {/* Premium Header */}
+        {/* Modern Header */}
         <motion.header 
-          className="fixed top-0 left-0 right-0 z-50 px-8 py-6"
+          className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
           style={{ 
             opacity: headerOpacity,
             backdropFilter: `blur(${headerBlur}px)`
           }}
         >
-          <div className="glass-premium p-4">
-            <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="glass-card p-4">
+            <div className="max-w-6xl mx-auto flex justify-between items-center">
               <motion.div
-                className="flex items-center gap-4"
+                className="flex items-center gap-3"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={resetMood}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
-                  <span className="text-xl">🎵</span>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                  <span className="text-sm">🎵</span>
                 </div>
-                <h1 className="text-premium-lg">MoodMix</h1>
+                <h1 className="text-title font-bold">MoodMix</h1>
               </motion.div>
               
               {currentMood && (
@@ -83,17 +83,15 @@ export default function Home() {
                   className="flex items-center gap-4"
                 >
                   <div className="text-right">
-                    <p className="text-premium-sm opacity-60">Current Mood</p>
-                    <p className="text-premium-md capitalize">{currentMood.primary}</p>
+                    <p className="text-small">Current Mood</p>
+                    <p className="text-body font-medium capitalize">{currentMood.primary}</p>
                   </div>
-                  <motion.button
-                    className="glass-interactive px-6 py-3 rounded-2xl text-premium-sm font-medium"
+                  <button
+                    className="btn-secondary"
                     onClick={resetMood}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     Change Mood
-                  </motion.button>
+                  </button>
                 </motion.div>
               )}
             </div>
@@ -101,8 +99,8 @@ export default function Home() {
         </motion.header>
 
         {/* Main Content Area */}
-        <div className={`min-h-screen flex flex-col px-8 pb-16 ${showWheel && !currentMood ? 'justify-center pt-32' : 'pt-20'}`}>
-          <div className="max-w-7xl mx-auto w-full">
+        <div className={`min-h-screen flex flex-col px-6 pb-16 ${showWheel && !currentMood ? 'justify-center pt-32' : 'pt-24'}`}>
+          <div className="max-w-4xl mx-auto w-full">
             <AnimatePresence mode="wait">
               {/* Mood Selection View */}
               {showWheel && !currentMood && (
@@ -118,18 +116,18 @@ export default function Home() {
                   className="text-center"
                 >
                   {/* Hero Section */}
-                  <div className="mb-16">
+                  <div className="mb-12 text-center">
                     <motion.div
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2, duration: 0.8 }}
                       className="mb-8"
                     >
-                      <h1 className="text-premium-xl mb-6">
+                      <h1 className="text-display mb-6">
                         How are you feeling?
                       </h1>
-                      <p className="text-premium-lg opacity-70 max-w-2xl mx-auto">
-                        Discover the perfect soundtrack for your emotions. Our AI-powered mood analysis creates personalized playlists that resonate with your current state of mind.
+                      <p className="text-body max-w-2xl mx-auto">
+                        Discover the perfect soundtrack for your emotions. Our AI creates personalized playlists that match your current mood.
                       </p>
                     </motion.div>
                     
@@ -137,13 +135,13 @@ export default function Home() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4, duration: 0.6 }}
-                      className="text-premium-sm opacity-50 uppercase tracking-wider"
+                      className="text-caption uppercase tracking-wider"
                     >
                       Select your mood below
                     </motion.div>
                   </div>
 
-                  {/* Premium Mood Card Selector */}
+                  {/* Modern Mood Card Selector */}
                   <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -158,9 +156,8 @@ export default function Home() {
 
                   {/* Floating Elements */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="floating-orb-premium w-96 h-96 -top-48 -left-48" />
-                    <div className="floating-orb-premium w-64 h-64 -bottom-32 -right-32" />
-                    <div className="floating-orb-premium w-80 h-80 top-1/4 -right-40" />
+                    <div className="floating-orb w-80 h-80 -top-40 -left-40" />
+                    <div className="floating-orb w-60 h-60 -bottom-30 -right-30" />
                   </div>
                 </motion.div>
               )}
@@ -180,40 +177,40 @@ export default function Home() {
                 >
                   {/* Mood Summary Card */}
                   <motion.div 
-                    className="text-center"
+                    className="text-center mb-8"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <div className="glass-premium inline-block p-8">
+                    <div className="glass-card inline-block p-6">
                       <div className="flex items-center gap-8">
                         <div className="text-center">
-                          <div className="text-premium-sm opacity-60 mb-2">Current Mood</div>
-                          <div className="text-premium-lg capitalize font-bold">{currentMood.primary}</div>
+                          <div className="text-caption mb-2">Current Mood</div>
+                          <div className="text-heading capitalize font-semibold">{currentMood.primary}</div>
                         </div>
                         
-                        <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                        <div className="w-px h-12 bg-white/10" />
                         
                         <div className="text-center">
-                          <div className="text-premium-sm opacity-60 mb-2">Intensity</div>
-                          <div className="flex items-center gap-4">
-                            <div className="w-40 h-3 bg-white/10 rounded-full overflow-hidden">
+                          <div className="text-caption mb-2">Intensity</div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
                               <motion.div
-                                className="h-full bg-gradient-to-r from-white/60 to-white/80 rounded-full"
+                                className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
                                 initial={{ width: 0 }}
                                 animate={{ width: `${currentMood.intensity}%` }}
                                 transition={{ duration: 1.5, ease: 'easeOut' }}
                               />
                             </div>
-                            <span className="text-premium-md font-bold">{currentMood.intensity}%</span>
+                            <span className="text-body font-semibold">{currentMood.intensity}%</span>
                           </div>
                         </div>
 
-                        <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                        <div className="w-px h-12 bg-white/10" />
 
                         <div className="text-center">
-                          <div className="text-premium-sm opacity-60 mb-2">Tracks Found</div>
-                          <div className="text-premium-lg font-bold">{tracks.length}</div>
+                          <div className="text-caption mb-2">Tracks Found</div>
+                          <div className="text-heading font-semibold">{tracks.length}</div>
                         </div>
                       </div>
                     </div>
@@ -228,19 +225,17 @@ export default function Home() {
                         exit={{ opacity: 0, y: -20, scale: 0.95 }}
                         className="flex justify-center"
                       >
-                        <div className="card-premium p-8 max-w-md text-center">
-                          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
-                            <span className="text-2xl">⚠️</span>
+                        <div className="card p-6 max-w-md text-center">
+                          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <span className="text-xl">⚠️</span>
                           </div>
-                          <p className="text-premium-md text-red-300 mb-6">{error}</p>
-                          <motion.button
+                          <p className="text-body text-red-300 mb-4">{error}</p>
+                          <button
                             onClick={() => fetchMusicForMood(currentMood)}
-                            className="glass-interactive px-6 py-3 rounded-2xl text-premium-sm font-medium"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="btn-primary"
                           >
                             Try Again
-                          </motion.button>
+                          </button>
                         </div>
                       </motion.div>
                     )}
@@ -264,17 +259,17 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Premium Footer */}
+        {/* Modern Footer */}
         <motion.footer 
-          className="relative z-20 px-8 py-6"
+          className="relative z-20 px-6 py-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          <div className="glass-premium p-4">
-            <div className="max-w-7xl mx-auto text-center">
-              <p className="text-premium-sm opacity-40">
-                Crafted with precision • Powered by Spotify • Made for music lovers
+          <div className="glass-card p-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <p className="text-caption">
+                Powered by Spotify • Made for music lovers
               </p>
             </div>
           </div>

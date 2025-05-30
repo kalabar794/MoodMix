@@ -13,82 +13,37 @@ const MOOD_CARDS = [
     name: 'happy', 
     label: 'Happy', 
     emoji: '😊',
-    color: '#FFD93D', 
-    gradient: 'from-yellow-300 via-yellow-400 to-orange-400',
-    description: 'Upbeat & Joyful',
-    shadowColor: 'shadow-yellow-500/25'
+    color: '#fbbf24'
   },
   { 
     name: 'energetic', 
     label: 'Energetic', 
     emoji: '⚡',
-    color: '#FF6B6B', 
-    gradient: 'from-red-400 via-red-500 to-pink-500',
-    description: 'High Energy & Dynamic',
-    shadowColor: 'shadow-red-500/25'
+    color: '#ef4444'
   },
   { 
     name: 'calm', 
     label: 'Calm', 
     emoji: '😌',
-    color: '#4DD0E1', 
-    gradient: 'from-cyan-300 via-cyan-400 to-blue-400',
-    description: 'Peaceful & Serene',
-    shadowColor: 'shadow-cyan-500/25'
+    color: '#14b8a6'
   },
   { 
     name: 'romantic', 
     label: 'Romantic', 
     emoji: '💕',
-    color: '#F48FB1', 
-    gradient: 'from-pink-300 via-pink-400 to-rose-400',
-    description: 'Love & Romance',
-    shadowColor: 'shadow-pink-500/25'
+    color: '#ec4899'
   },
   { 
     name: 'focused', 
     label: 'Focused', 
     emoji: '🎯',
-    color: '#64B5F6', 
-    gradient: 'from-blue-400 via-blue-500 to-indigo-500',
-    description: 'Deep Concentration',
-    shadowColor: 'shadow-blue-500/25'
+    color: '#3b82f6'
   },
   { 
     name: 'chill', 
     label: 'Chill', 
     emoji: '🌊',
-    color: '#81C784', 
-    gradient: 'from-green-300 via-green-400 to-teal-400',
-    description: 'Relaxed Vibes',
-    shadowColor: 'shadow-green-500/25'
-  },
-  { 
-    name: 'sad', 
-    label: 'Melancholy', 
-    emoji: '😔',
-    color: '#90A4AE', 
-    gradient: 'from-slate-400 via-slate-500 to-gray-500',
-    description: 'Emotional & Deep',
-    shadowColor: 'shadow-slate-500/25'
-  },
-  { 
-    name: 'excited', 
-    label: 'Excited', 
-    emoji: '🎉',
-    color: '#FF9D5C', 
-    gradient: 'from-orange-400 via-orange-500 to-yellow-500',
-    description: 'Thrilled & Energized',
-    shadowColor: 'shadow-orange-500/25'
-  },
-  { 
-    name: 'dreamy', 
-    label: 'Dreamy', 
-    emoji: '✨',
-    color: '#B39DDB', 
-    gradient: 'from-purple-300 via-purple-400 to-indigo-400',
-    description: 'Ethereal & Mystical',
-    shadowColor: 'shadow-purple-500/25'
+    color: '#10b981'
   }
 ]
 
@@ -146,26 +101,13 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-12"
-      >
-        <h2 className="text-premium-lg mb-4">Choose Your Vibe</h2>
-        <p className="text-premium-md opacity-70 max-w-xl mx-auto">
-          Select the mood that matches how you&apos;re feeling right now. We&apos;ll find the perfect music to complement your energy.
-        </p>
-      </motion.div>
-
+    <div className="w-full max-w-3xl mx-auto">
       {/* Mood Cards Grid */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-2 md:grid-cols-3 gap-4"
       >
         {MOOD_CARDS.map((mood) => (
           <motion.button
@@ -174,53 +116,43 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
             onClick={() => handleMoodSelect(mood)}
             disabled={isSelecting}
             className={`
-              relative overflow-hidden rounded-2xl p-6 text-left
-              bg-gradient-to-br ${mood.gradient}
-              hover:scale-105 active:scale-95
-              transition-all duration-300 ease-out
-              ${mood.shadowColor} hover:shadow-2xl
-              ${selectedMood === mood.name ? 'ring-4 ring-white/50 scale-105' : ''}
+              mood-card relative group
+              ${selectedMood === mood.name ? 'selected ring-2 ring-purple-500' : ''}
               ${isSelecting && selectedMood !== mood.name ? 'opacity-50' : ''}
-              group cursor-pointer
               disabled:cursor-not-allowed
             `}
+            style={{
+              backgroundColor: selectedMood === mood.name ? `${mood.color}20` : undefined,
+              borderColor: selectedMood === mood.name ? mood.color : undefined
+            }}
             whileHover={{ 
-              y: -8,
+              y: -4,
               transition: { type: "spring", stiffness: 400, damping: 25 }
             }}
             whileTap={{ scale: 0.95 }}
           >
-            {/* Background Pattern */}
-            <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors duration-300" />
-            
-            {/* Shine Effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-            
             {/* Content */}
             <div className="relative z-10">
               {/* Emoji */}
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">
                 {mood.emoji}
               </div>
               
               {/* Mood Name */}
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-white/90 transition-colors">
+              <h3 className="text-heading font-semibold mb-1">
                 {mood.label}
               </h3>
-              
-              {/* Description */}
-              <p className="text-white/80 text-sm group-hover:text-white/70 transition-colors">
-                {mood.description}
-              </p>
 
               {/* Selection Indicator */}
               {selectedMood === mood.name && (
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full flex items-center justify-center"
+                  className="absolute top-3 right-3 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center"
                 >
-                  <div className="w-3 h-3 bg-green-500 rounded-full" />
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
                 </motion.div>
               )}
 
@@ -229,28 +161,12 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center"
+                  className="absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center"
                 >
-                  <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 </motion.div>
               )}
             </div>
-
-            {/* Pulse Effect for Selected */}
-            {selectedMood === mood.name && (
-              <motion.div
-                className="absolute inset-0 border-2 border-white/30 rounded-2xl"
-                animate={{
-                  scale: [1, 1.02, 1],
-                  opacity: [0.5, 0.8, 0.5]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            )}
           </motion.button>
         ))}
       </motion.div>
@@ -260,10 +176,10 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
-        className="text-center mt-12"
+        className="text-center mt-8"
       >
-        <p className="text-premium-sm opacity-50">
-          Don&apos;t see your exact mood? Pick the closest one – we&apos;ll fine-tune the perfect playlist for you.
+        <p className="text-caption">
+          Pick the mood that best matches how you&apos;re feeling right now
         </p>
       </motion.div>
     </div>

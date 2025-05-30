@@ -2,29 +2,84 @@ import { MoodSelection, MoodMusicParams } from './types'
 
 // Mood to Spotify audio features mapping
 const MOOD_MAPPINGS = {
+  euphoric: {
+    valence: { min: 0.8, max: 1.0 },
+    energy: { min: 0.7, max: 0.9 },
+    danceability: { min: 0.7, max: 0.9 },
+    genres: ['pop', 'dance', 'electronic', 'happy']
+  },
+  melancholic: {
+    valence: { min: 0.0, max: 0.3 },
+    energy: { min: 0.1, max: 0.4 },
+    danceability: { min: 0.2, max: 0.4 },
+    genres: ['sad', 'indie', 'alternative', 'singer-songwriter']
+  },
+  energetic: {
+    valence: { min: 0.6, max: 0.9 },
+    energy: { min: 0.8, max: 1.0 },
+    danceability: { min: 0.7, max: 1.0 },
+    genres: ['rock', 'electronic', 'hip-hop', 'workout']
+  },
+  serene: {
+    valence: { min: 0.4, max: 0.7 },
+    energy: { min: 0.1, max: 0.3 },
+    danceability: { min: 0.2, max: 0.4 },
+    genres: ['ambient', 'chill', 'classical', 'new-age']
+  },
+  passionate: {
+    valence: { min: 0.6, max: 0.9 },
+    energy: { min: 0.5, max: 0.8 },
+    danceability: { min: 0.5, max: 0.8 },
+    genres: ['r-n-b', 'soul', 'latin', 'romance']
+  },
+  contemplative: {
+    valence: { min: 0.3, max: 0.6 },
+    energy: { min: 0.2, max: 0.5 },
+    danceability: { min: 0.2, max: 0.4 },
+    genres: ['classical', 'ambient', 'post-rock', 'jazz']
+  },
+  nostalgic: {
+    valence: { min: 0.3, max: 0.6 },
+    energy: { min: 0.3, max: 0.6 },
+    danceability: { min: 0.4, max: 0.6 },
+    genres: ['indie', 'folk', 'classic-rock', 'oldies']
+  },
+  rebellious: {
+    valence: { min: 0.4, max: 0.7 },
+    energy: { min: 0.7, max: 1.0 },
+    danceability: { min: 0.6, max: 0.9 },
+    genres: ['punk', 'rock', 'metal', 'alternative']
+  },
+  mystical: {
+    valence: { min: 0.4, max: 0.7 },
+    energy: { min: 0.3, max: 0.6 },
+    danceability: { min: 0.3, max: 0.6 },
+    genres: ['ambient', 'world', 'electronic', 'experimental']
+  },
+  triumphant: {
+    valence: { min: 0.7, max: 1.0 },
+    energy: { min: 0.6, max: 0.9 },
+    danceability: { min: 0.5, max: 0.8 },
+    genres: ['pop', 'rock', 'soundtrack', 'inspirational']
+  },
+  vulnerable: {
+    valence: { min: 0.2, max: 0.5 },
+    energy: { min: 0.2, max: 0.5 },
+    danceability: { min: 0.2, max: 0.4 },
+    genres: ['acoustic', 'folk', 'indie', 'singer-songwriter']
+  },
+  adventurous: {
+    valence: { min: 0.6, max: 0.9 },
+    energy: { min: 0.6, max: 0.8 },
+    danceability: { min: 0.5, max: 0.8 },
+    genres: ['world', 'electronic', 'pop', 'alternative']
+  },
+  // Legacy moods for backward compatibility
   happy: {
     valence: { min: 0.6, max: 0.9 },
     energy: { min: 0.5, max: 0.8 },
     danceability: { min: 0.6, max: 0.9 },
     genres: ['pop', 'indie-pop', 'dance', 'happy']
-  },
-  excited: {
-    valence: { min: 0.7, max: 1.0 },
-    energy: { min: 0.7, max: 1.0 },
-    danceability: { min: 0.7, max: 1.0 },
-    genres: ['edm', 'dance', 'electronic', 'power-pop']
-  },
-  energetic: {
-    valence: { min: 0.5, max: 0.8 },
-    energy: { min: 0.8, max: 1.0 },
-    danceability: { min: 0.6, max: 0.9 },
-    genres: ['rock', 'electronic', 'hip-hop', 'workout']
-  },
-  love: {
-    valence: { min: 0.6, max: 0.9 },
-    energy: { min: 0.3, max: 0.6 },
-    danceability: { min: 0.4, max: 0.7 },
-    genres: ['romance', 'r-n-b', 'soul', 'indie']
   },
   sad: {
     valence: { min: 0.0, max: 0.4 },
@@ -37,30 +92,6 @@ const MOOD_MAPPINGS = {
     energy: { min: 0.1, max: 0.4 },
     danceability: { min: 0.2, max: 0.5 },
     genres: ['ambient', 'chill', 'acoustic', 'classical']
-  },
-  angry: {
-    valence: { min: 0.1, max: 0.4 },
-    energy: { min: 0.7, max: 1.0 },
-    danceability: { min: 0.5, max: 0.8 },
-    genres: ['metal', 'rock', 'punk', 'hard-rock']
-  },
-  anxious: {
-    valence: { min: 0.2, max: 0.5 },
-    energy: { min: 0.5, max: 0.8 },
-    danceability: { min: 0.3, max: 0.6 },
-    genres: ['electronic', 'ambient', 'post-rock', 'experimental']
-  },
-  focused: {
-    valence: { min: 0.4, max: 0.6 },
-    energy: { min: 0.4, max: 0.7 },
-    danceability: { min: 0.3, max: 0.6 },
-    genres: ['study', 'classical', 'ambient', 'lo-fi']
-  },
-  nostalgic: {
-    valence: { min: 0.3, max: 0.6 },
-    energy: { min: 0.3, max: 0.6 },
-    danceability: { min: 0.4, max: 0.7 },
-    genres: ['indie', 'folk', 'alternative', 'classic-rock']
   }
 }
 
@@ -129,37 +160,49 @@ function selectGenresForMood(baseGenres: string[], intensity: number): string[] 
 // Get search keywords based on mood (for text-based search fallback)
 export function getMoodKeywords(mood: MoodSelection): string[] {
   const keywordMap: Record<string, string[]> = {
+    euphoric: ['ecstatic', 'blissful', 'elated', 'joyous', 'radiant'],
+    melancholic: ['melancholy', 'sorrowful', 'wistful', 'pensive', 'bittersweet'],
+    energetic: ['high energy', 'pumped', 'dynamic', 'vigorous', 'intense'],
+    serene: ['peaceful', 'tranquil', 'calm', 'zen', 'meditative'],
+    passionate: ['intense', 'fiery', 'romantic', 'sensual', 'ardent'],
+    contemplative: ['thoughtful', 'reflective', 'introspective', 'philosophical', 'deep'],
+    nostalgic: ['memories', 'throwback', 'vintage', 'reminiscent', 'timeless'],
+    rebellious: ['defiant', 'fierce', 'bold', 'revolutionary', 'edgy'],
+    mystical: ['ethereal', 'spiritual', 'mysterious', 'transcendent', 'otherworldly'],
+    triumphant: ['victorious', 'successful', 'powerful', 'conquering', 'winning'],
+    vulnerable: ['tender', 'exposed', 'raw', 'honest', 'fragile'],
+    adventurous: ['exploring', 'wanderlust', 'journey', 'discovery', 'freedom'],
+    // Legacy moods
     happy: ['upbeat', 'cheerful', 'positive', 'joyful', 'bright'],
-    excited: ['energetic', 'thrilling', 'dynamic', 'intense', 'powerful'],
-    energetic: ['high energy', 'pumped', 'active', 'vigorous', 'lively'],
-    love: ['romantic', 'passionate', 'tender', 'intimate', 'heartfelt'],
     sad: ['melancholy', 'sorrowful', 'emotional', 'heartbreak', 'lonely'],
-    calm: ['peaceful', 'relaxing', 'serene', 'tranquil', 'soothing'],
-    angry: ['aggressive', 'intense', 'fierce', 'rage', 'furious'],
-    anxious: ['tense', 'nervous', 'unsettled', 'worried', 'restless'],
-    focused: ['concentration', 'study', 'productive', 'mindful', 'clear'],
-    nostalgic: ['memories', 'throwback', 'classic', 'vintage', 'reminiscent']
+    calm: ['peaceful', 'relaxing', 'serene', 'tranquil', 'soothing']
   }
 
-  return keywordMap[mood.primary] || keywordMap.happy
+  return keywordMap[mood.primary] || keywordMap.euphoric
 }
 
 // Get mood description for UI
 export function getMoodDescription(mood: MoodSelection): string {
   const descriptions: Record<string, string> = {
+    euphoric: "Blissful melodies that amplify your pure joy and elation",
+    melancholic: "Contemplative soundscapes for your introspective moments",
+    energetic: "High-octane tracks to fuel your dynamic spirit",
+    serene: "Tranquil compositions for your peaceful state of mind",
+    passionate: "Intense rhythms that match your fiery emotions",
+    contemplative: "Thoughtful music for deep reflection and meditation",
+    nostalgic: "Timeless melodies that transport you through cherished memories",
+    rebellious: "Bold anthems for your defiant and revolutionary spirit",
+    mystical: "Ethereal sounds that connect you to the otherworldly",
+    triumphant: "Victorious compositions celebrating your achievements",
+    vulnerable: "Tender music that honors your open and honest emotions",
+    adventurous: "Exploratory soundtracks for your journey of discovery",
+    // Legacy descriptions
     happy: "Uplifting tunes to match your joyful vibe",
-    excited: "High-energy tracks for your enthusiastic mood",
-    energetic: "Powerful music to fuel your energy",
-    love: "Romantic melodies for matters of the heart",
     sad: "Emotional songs that understand your feelings",
-    calm: "Peaceful sounds for your tranquil state",
-    angry: "Intense music to channel your emotions",
-    anxious: "Rhythmic tracks to ease your mind",
-    focused: "Concentration-enhancing soundscapes",
-    nostalgic: "Timeless tunes for your reflective mood"
+    calm: "Peaceful sounds for your tranquil state"
   }
 
-  return descriptions[mood.primary] || "Music matched to your mood"
+  return descriptions[mood.primary] || "Music perfectly matched to your emotional state"
 }
 
 // Validate if genres are available on Spotify

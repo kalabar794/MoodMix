@@ -8,54 +8,54 @@ interface MoodWheelProps {
   onMoodSelect: (mood: MoodSelection) => void
 }
 
-// Premium mood segments with sophisticated color palette
+// Premium mood segments with vibrant modern color palette
 const MOODS = [
   { 
     name: 'happy', 
     label: 'Happy', 
-    color: '#FFD93D', 
+    color: '#FFE055', 
     angle: 0,
-    gradient: 'conic-gradient(from 0deg at 50% 50%, #FFD93D 0deg, #FFA726 30deg, #FFD93D 60deg)',
+    gradient: 'conic-gradient(from 0deg at 50% 50%, #FFE055 0deg, #FFB347 20deg, #FFA726 40deg, #FFE055 60deg)',
     description: 'Joyful & Bright'
   },
   { 
     name: 'excited', 
     label: 'Excited', 
-    color: '#FF8C42', 
+    color: '#FF9D5C', 
     angle: 60,
-    gradient: 'conic-gradient(from 60deg at 50% 50%, #FF8C42 0deg, #FF5722 30deg, #FF8C42 60deg)',
+    gradient: 'conic-gradient(from 60deg at 50% 50%, #FF9D5C 0deg, #FF7043 20deg, #FF5722 40deg, #FF9D5C 60deg)',
     description: 'Thrilled & Energized'
   },
   { 
     name: 'energetic', 
     label: 'Energetic', 
-    color: '#FF6B6B', 
+    color: '#FF7B7B', 
     angle: 120,
-    gradient: 'conic-gradient(from 120deg at 50% 50%, #FF6B6B 0deg, #E53E3E 30deg, #FF6B6B 60deg)',
+    gradient: 'conic-gradient(from 120deg at 50% 50%, #FF7B7B 0deg, #F44336 20deg, #E53935 40deg, #FF7B7B 60deg)',
     description: 'Powerful & Dynamic'
   },
   { 
     name: 'love', 
     label: 'Love', 
-    color: '#F06292', 
+    color: '#F48FB1', 
     angle: 180,
-    gradient: 'conic-gradient(from 180deg at 50% 50%, #F06292 0deg, #E91E63 30deg, #F06292 60deg)',
+    gradient: 'conic-gradient(from 180deg at 50% 50%, #F48FB1 0deg, #EC407A 20deg, #E91E63 40deg, #F48FB1 60deg)',
     description: 'Romantic & Tender'
   },
   { 
     name: 'sad', 
     label: 'Sad', 
-    color: '#4D8FAC', 
+    color: '#64B5F6', 
     angle: 240,
-    gradient: 'conic-gradient(from 240deg at 50% 50%, #4D8FAC 0deg, #2196F3 30deg, #4D8FAC 60deg)',
+    gradient: 'conic-gradient(from 240deg at 50% 50%, #64B5F6 0deg, #42A5F5 20deg, #2196F3 40deg, #64B5F6 60deg)',
     description: 'Emotional & Deep'
   },
   { 
     name: 'calm', 
     label: 'Calm', 
-    color: '#4DB6AC', 
+    color: '#4DD0E1', 
     angle: 300,
-    gradient: 'conic-gradient(from 300deg at 50% 50%, #4DB6AC 0deg, #00ACC1 30deg, #4DB6AC 60deg)',
+    gradient: 'conic-gradient(from 300deg at 50% 50%, #4DD0E1 0deg, #26C6DA 20deg, #00BCD4 40deg, #4DD0E1 60deg)',
     description: 'Peaceful & Serene'
   },
 ]

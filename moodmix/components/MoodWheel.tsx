@@ -135,8 +135,8 @@ export default function MoodWheel({ onMoodSelect }: MoodWheelProps) {
           perspective: '1000px',
           transformStyle: 'preserve-3d',
         }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
         transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         {/* Ambient Glow Effect */}

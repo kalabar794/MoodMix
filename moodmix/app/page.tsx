@@ -64,16 +64,101 @@ export default function Home() {
           <div className="glass-card p-4">
             <div className="max-w-6xl mx-auto flex justify-between items-center">
               <motion.div
-                className="flex items-center gap-3"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-4"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={resetMood}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
-                  <span className="text-sm">🎵</span>
-                </div>
-                <h1 className="text-title font-bold">MoodMix</h1>
+                {/* Animated Logo Icon */}
+                <motion.div 
+                  className="relative w-12 h-12 rounded-xl overflow-hidden"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                >
+                  {/* Animated Background */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500"
+                    animate={{
+                      background: [
+                        "linear-gradient(45deg, #8b5cf6, #ec4899, #3b82f6)",
+                        "linear-gradient(135deg, #ec4899, #3b82f6, #8b5cf6)",
+                        "linear-gradient(225deg, #3b82f6, #8b5cf6, #ec4899)",
+                        "linear-gradient(315deg, #8b5cf6, #ec4899, #3b82f6)"
+                      ]
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  />
+                  
+                  {/* Glow Effect */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-br from-purple-400/40 to-blue-400/40 blur-sm"
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  
+                  {/* Music Icon with Animation */}
+                  <motion.div 
+                    className="relative z-10 w-full h-full flex items-center justify-center text-white"
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                      <circle cx="10" cy="17" r="1"/>
+                    </svg>
+                  </motion.div>
+                  
+                  {/* Sparkle Effects */}
+                  <motion.div 
+                    className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full"
+                    animate={{ 
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+                  />
+                  <motion.div 
+                    className="absolute bottom-1 left-1 w-1 h-1 bg-white rounded-full"
+                    animate={{ 
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+                  />
+                  <motion.div 
+                    className="absolute top-2 left-2 w-0.5 h-0.5 bg-white rounded-full"
+                    animate={{ 
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
+                  />
+                </motion.div>
+                
+                {/* Animated Text Logo */}
+                <motion.div className="relative">
+                  <motion.h1 
+                    className="text-title font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent"
+                    animate={{
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    style={{ backgroundSize: "200% 200%" }}
+                  >
+                    MoodMix
+                  </motion.h1>
+                  
+                  {/* Subtle glow under text */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-blue-400/20 blur-lg -z-10"
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </motion.div>
               </motion.div>
               
               {currentMood && (

@@ -105,7 +105,7 @@ export default function MoodWheel({ onMoodSelect }: MoodWheelProps) {
     setCursorPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top })
   }
 
-  const handleWheelClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleWheelClick = () => {
     if (!wheelRef.current || !selectedMood) return
 
     // Create mood selection object

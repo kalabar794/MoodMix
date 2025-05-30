@@ -101,7 +101,7 @@ export default function Home() {
         </motion.header>
 
         {/* Main Content Area */}
-        <div className="min-h-screen flex flex-col justify-center px-8 pt-32 pb-16">
+        <div className={`min-h-screen flex flex-col px-8 pb-16 ${showWheel && !currentMood ? 'justify-center pt-32' : 'pt-20'}`}>
           <div className="max-w-7xl mx-auto w-full">
             <AnimatePresence mode="wait">
               {/* Mood Selection View */}

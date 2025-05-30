@@ -105,15 +105,37 @@ export default function MoodWheel({ onMoodSelect }: MoodWheelProps) {
     setCursorPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top })
   }
 
-  const handleWheelClick = () => {
-    if (!wheelRef.current || !selectedMood) return
+  const handleWheelClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!wheelRef.current) return
+
+    const rect = wheelRef.current.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    const x = e.clientX - rect.left - centerX
+    const y = e.clientY - rect.top - centerY
+
+    // Calculate angle from center
+    let angle = Math.atan2(y, x) * (180 / Math.PI)
+    angle = (angle + 360) % 360 // Normalize to 0-360
+
+    // Find closest mood
+    const closestMood = MOODS.reduce((prev, curr) => {
+      const prevDiff = Math.abs(((prev.angle - angle + 180) % 360) - 180)
+      const currDiff = Math.abs(((curr.angle - angle + 180) % 360) - 180)
+      return currDiff < prevDiff ? curr : prev
+    })
+
+    // Calculate intensity based on distance from center
+    const distance = Math.sqrt(x * x + y * y)
+    const maxDistance = Math.min(centerX, centerY) * 0.8 // 80% of radius for better UX
+    const calculatedIntensity = Math.min(100, Math.max(10, (distance / maxDistance) * 100))
 
     // Create mood selection object
     const selection: MoodSelection = {
-      primary: selectedMood,
-      color: MOODS.find(m => m.name === selectedMood)?.color || '#FFD93D',
-      intensity: intensity,
-      coordinates: { x: cursorPosition.x, y: cursorPosition.y }
+      primary: closestMood.name,
+      color: closestMood.color,
+      intensity: Math.round(calculatedIntensity),
+      coordinates: { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
 
     onMoodSelect(selection)

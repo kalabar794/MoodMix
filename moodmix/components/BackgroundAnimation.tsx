@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MoodSelection } from '@/lib/types'
 
@@ -8,355 +7,295 @@ interface BackgroundAnimationProps {
   mood: MoodSelection | null
 }
 
-// Particle configuration for each mood - Enhanced for vibrancy
-const MOOD_PARTICLES = {
+// Modern CSS-based mood themes following web best practices
+const MOOD_THEMES = {
   // Legacy mood names (for backward compatibility)
   happy: {
-    count: 35,
-    color: 'rgba(255, 224, 85, 0.4)',
-    speed: 2.5,
-    size: { min: 2, max: 7 }
+    primary: '#fbbf24', // amber-400
+    secondary: '#f59e0b', // amber-500
+    accent: '#fef3c7' // amber-100
   },
   excited: {
-    count: 45,
-    color: 'rgba(255, 157, 92, 0.4)',
-    speed: 3.5,
-    size: { min: 3, max: 9 }
+    primary: '#fb7185', // rose-400
+    secondary: '#f43f5e', // rose-500
+    accent: '#fecdd3' // rose-100
   },
   energetic: {
-    count: 55,
-    color: 'rgba(255, 123, 123, 0.4)',
-    speed: 4.5,
-    size: { min: 2, max: 11 }
+    primary: '#ef4444', // red-500
+    secondary: '#dc2626', // red-600
+    accent: '#fecaca' // red-200
   },
   love: {
-    count: 30,
-    color: 'rgba(244, 143, 177, 0.4)',
-    speed: 2,
-    size: { min: 4, max: 9 }
+    primary: '#ec4899', // pink-500
+    secondary: '#db2777', // pink-600
+    accent: '#fbcfe8' // pink-200
   },
   sad: {
-    count: 25,
-    color: 'rgba(100, 181, 246, 0.4)',
-    speed: 1.5,
-    size: { min: 2, max: 6 }
+    primary: '#3b82f6', // blue-500
+    secondary: '#2563eb', // blue-600
+    accent: '#dbeafe' // blue-200
   },
   calm: {
-    count: 20,
-    color: 'rgba(77, 208, 225, 0.4)',
-    speed: 1,
-    size: { min: 3, max: 7 }
+    primary: '#06b6d4', // cyan-500
+    secondary: '#0891b2', // cyan-600
+    accent: '#cffafe' // cyan-200
   },
   // New sophisticated mood names
   euphoric: {
-    count: 45,
-    color: 'rgba(251, 191, 36, 0.4)',
-    speed: 3.5,
-    size: { min: 3, max: 9 }
+    primary: '#fbbf24', // amber-400
+    secondary: '#f59e0b', // amber-500
+    accent: '#fef3c7' // amber-100
   },
   melancholic: {
-    count: 25,
-    color: 'rgba(100, 181, 246, 0.4)',
-    speed: 1.5,
-    size: { min: 2, max: 6 }
+    primary: '#64b5f6', // blue-400
+    secondary: '#42a5f5', // blue-500
+    accent: '#e3f2fd' // blue-50
   },
   serene: {
-    count: 20,
-    color: 'rgba(20, 184, 166, 0.4)',
-    speed: 1,
-    size: { min: 3, max: 7 }
+    primary: '#14b8a6', // teal-500
+    secondary: '#0d9488', // teal-600
+    accent: '#ccfbf1' // teal-100
   },
   passionate: {
-    count: 35,
-    color: 'rgba(236, 72, 153, 0.4)',
-    speed: 2.8,
-    size: { min: 4, max: 9 }
+    primary: '#ec4899', // pink-500
+    secondary: '#db2777', // pink-600
+    accent: '#fbcfe8' // pink-200
   },
   contemplative: {
-    count: 22,
-    color: 'rgba(139, 92, 246, 0.4)',
-    speed: 1.2,
-    size: { min: 3, max: 7 }
+    primary: '#8b5cf6', // violet-500
+    secondary: '#7c3aed', // violet-600
+    accent: '#ede9fe' // violet-100
   },
   nostalgic: {
-    count: 28,
-    color: 'rgba(217, 119, 6, 0.4)',
-    speed: 1.8,
-    size: { min: 2, max: 6 }
+    primary: '#d97706', // amber-600
+    secondary: '#b45309', // amber-700
+    accent: '#fed7aa' // orange-200
   },
   rebellious: {
-    count: 50,
-    color: 'rgba(220, 38, 127, 0.4)',
-    speed: 4,
-    size: { min: 3, max: 10 }
+    primary: '#dc2626', // red-600
+    secondary: '#b91c1c', // red-700
+    accent: '#fecaca' // red-200
   },
   mystical: {
-    count: 30,
-    color: 'rgba(168, 85, 247, 0.4)',
-    speed: 2.2,
-    size: { min: 3, max: 8 }
+    primary: '#a855f7', // purple-500
+    secondary: '#9333ea', // purple-600
+    accent: '#f3e8ff' // purple-100
   },
   triumphant: {
-    count: 40,
-    color: 'rgba(245, 158, 11, 0.4)',
-    speed: 3.2,
-    size: { min: 4, max: 9 }
+    primary: '#f59e0b', // amber-500
+    secondary: '#d97706', // amber-600
+    accent: '#fef3c7' // amber-100
   },
   vulnerable: {
-    count: 20,
-    color: 'rgba(148, 163, 184, 0.4)',
-    speed: 1.3,
-    size: { min: 2, max: 6 }
+    primary: '#94a3b8', // slate-400
+    secondary: '#64748b', // slate-500
+    accent: '#f1f5f9' // slate-100
   },
   adventurous: {
-    count: 42,
-    color: 'rgba(16, 185, 129, 0.4)',
-    speed: 3.8,
-    size: { min: 3, max: 10 }
+    primary: '#10b981', // emerald-500
+    secondary: '#059669', // emerald-600
+    accent: '#d1fae5' // emerald-100
   }
 }
 
-interface Particle {
-  id: number
-  x: number
-  y: number
-  size: number
-  velocity: { x: number; y: number }
-}
-
 export default function BackgroundAnimation({ mood }: BackgroundAnimationProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const particlesRef = useRef<Particle[]>([])
-  const animationRef = useRef<number | undefined>(undefined)
-  const [isClient, setIsClient] = useState(false)
-  
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Set canvas size
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-    resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
-
-    // Initialize particles
-    const initParticles = () => {
-      const config = mood ? MOOD_PARTICLES[mood.primary as keyof typeof MOOD_PARTICLES] : MOOD_PARTICLES.happy
-      particlesRef.current = []
-
-      for (let i = 0; i < config.count; i++) {
-        particlesRef.current.push({
-          id: i,
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          size: Math.random() * (config.size.max - config.size.min) + config.size.min,
-          velocity: {
-            x: (Math.random() - 0.5) * config.speed,
-            y: (Math.random() - 0.5) * config.speed
-          }
-        })
-      }
-    }
-
-    // Animation loop
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      const config = mood ? MOOD_PARTICLES[mood.primary as keyof typeof MOOD_PARTICLES] : MOOD_PARTICLES.happy
-      ctx.fillStyle = config.color
-
-      particlesRef.current.forEach((particle) => {
-        // Update position
-        particle.x += particle.velocity.x
-        particle.y += particle.velocity.y
-
-        // Wrap around edges
-        if (particle.x < 0) particle.x = canvas.width
-        if (particle.x > canvas.width) particle.x = 0
-        if (particle.y < 0) particle.y = canvas.height
-        if (particle.y > canvas.height) particle.y = 0
-
-        // Draw particle
-        ctx.beginPath()
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-        ctx.fill()
-      })
-
-      animationRef.current = requestAnimationFrame(animate)
-    }
-
-    initParticles()
-    animate()
-
-    return () => {
-      window.removeEventListener('resize', resizeCanvas)
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [mood])
+  const currentTheme = mood ? MOOD_THEMES[mood.primary as keyof typeof MOOD_THEMES] : null
 
   return (
     <>
-      {/* Canvas for particles */}
-      {isClient && (
-        <canvas
-          ref={canvasRef}
-          className="fixed inset-0 pointer-events-none z-0"
-          style={{ mixBlendMode: 'screen' }}
+      {/* Base background layer */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Animated mesh gradient background */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: `
+              radial-gradient(circle at 20% 50%, ${currentTheme?.primary || '#6366f1'}20 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, ${currentTheme?.secondary || '#8b5cf6'}20 0%, transparent 50%),
+              radial-gradient(circle at 40% 80%, ${currentTheme?.accent || '#ec4899'}30 0%, transparent 50%),
+              linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%)
+            `
+          }}
         />
-      )}
+      </div>
 
-      {/* Animated gradient orbs */}
+      {/* Respect user motion preferences */}
+      <style jsx>{`
+        @media (prefers-reduced-motion: reduce) {
+          .animate-float,
+          .animate-breathe,
+          .animate-drift {
+            animation: none !important;
+          }
+        }
+      `}</style>
+
+      {/* Modern CSS-only animations */}
       <AnimatePresence mode="wait">
-        {mood && (
+        {mood && currentTheme && (
           <>
+            {/* Morphing blob shapes */}
             <motion.div
-              key={`orb1-${mood.primary}`}
-              className="floating-orb"
-              initial={{ opacity: 0, scale: 0.8, filter: "blur(80px)" }}
-              animate={{ 
-                opacity: [0.3, 0.5, 0.3],
-                scale: [1, 1.1, 1],
-                x: [0, 120, -40, 0],
-                y: [0, -60, -20, 0],
-                filter: ["blur(80px)", "blur(60px)", "blur(80px)"]
-              }}
+              key={`blob1-${mood.primary}`}
+              className="fixed pointer-events-none animate-float"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.4, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{
-                opacity: { duration: 8, repeat: Infinity, ease: "easeInOut" },
-                scale: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 20, repeat: Infinity, ease: "easeInOut" },
-                filter: { duration: 8, repeat: Infinity, ease: "easeInOut" }
-              }}
+              transition={{ duration: 2, ease: "easeOut" }}
               style={{
-                width: `${320 + mood.intensity * 1.2}px`,
-                height: `${320 + mood.intensity * 1.2}px`,
-                left: '8%',
-                top: '15%',
-                background: `radial-gradient(circle, ${mood.color}80 0%, ${mood.color}40 40%, transparent 75%)`,
-                mixBlendMode: 'screen'
+                width: '400px',
+                height: '400px',
+                left: '10%',
+                top: '20%',
+                background: `linear-gradient(45deg, ${currentTheme.primary}30, ${currentTheme.secondary}20)`,
+                borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+                filter: 'blur(40px)',
+                animation: 'float 20s ease-in-out infinite, morph 15s ease-in-out infinite'
               }}
             />
 
             <motion.div
-              key={`orb2-${mood.primary}`}
-              className="floating-orb"
-              initial={{ opacity: 0, scale: 0.8, filter: "blur(70px)" }}
-              animate={{ 
-                opacity: [0.25, 0.4, 0.25],
-                scale: [1, 1.05, 1],
-                x: [0, -100, 20, 0],
-                y: [0, 80, -10, 0],
-                filter: ["blur(70px)", "blur(50px)", "blur(70px)"]
-              }}
+              key={`blob2-${mood.primary}`}
+              className="fixed pointer-events-none animate-drift"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.3, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{
-                opacity: { duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 },
-                scale: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 },
-                x: { duration: 22, repeat: Infinity, ease: "easeInOut", delay: 8 },
-                y: { duration: 28, repeat: Infinity, ease: "easeInOut", delay: 8 },
-                filter: { duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }
-              }}
+              transition={{ duration: 2.5, ease: "easeOut", delay: 0.5 }}
               style={{
-                width: `${280 + mood.intensity}px`,
-                height: `${280 + mood.intensity}px`,
-                right: '12%',
-                bottom: '20%',
-                background: `radial-gradient(circle, ${mood.color}70 0%, ${mood.color}35 45%, transparent 80%)`,
-                mixBlendMode: 'screen'
+                width: '300px',
+                height: '300px',
+                right: '15%',
+                bottom: '25%',
+                background: `linear-gradient(135deg, ${currentTheme.secondary}25, ${currentTheme.accent}15)`,
+                borderRadius: '50% 20% 80% 40% / 60% 30% 70% 40%',
+                filter: 'blur(35px)',
+                animation: 'drift 25s ease-in-out infinite reverse, morph2 18s ease-in-out infinite'
               }}
             />
 
             <motion.div
-              key={`orb3-${mood.primary}`}
-              className="floating-orb"
-              initial={{ opacity: 0, scale: 0.8, filter: "blur(60px)" }}
-              animate={{ 
-                opacity: [0.2, 0.35, 0.2],
-                scale: [1, 1.08, 1],
-                x: [0, 80, -30, 0],
-                y: [0, 100, 40, 0],
-                filter: ["blur(60px)", "blur(40px)", "blur(60px)"]
-              }}
+              key={`blob3-${mood.primary}`}
+              className="fixed pointer-events-none animate-breathe"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.25, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{
-                opacity: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 4 },
-                scale: { duration: 7, repeat: Infinity, ease: "easeInOut", delay: 4 },
-                x: { duration: 30, repeat: Infinity, ease: "easeInOut", delay: 15 },
-                y: { duration: 24, repeat: Infinity, ease: "easeInOut", delay: 15 },
-                filter: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 4 }
+              transition={{ duration: 3, ease: "easeOut", delay: 1 }}
+              style={{
+                width: '250px',
+                height: '250px',
+                left: '60%',
+                top: '10%',
+                background: `radial-gradient(circle, ${currentTheme.primary}20, transparent 70%)`,
+                borderRadius: '40% 60% 30% 70% / 50% 40% 60% 50%',
+                filter: 'blur(30px)',
+                animation: 'breathe 12s ease-in-out infinite, morph3 22s ease-in-out infinite'
+              }}
+            />
+
+            {/* Floating geometric shapes */}
+            <motion.div
+              key={`geo1-${mood.primary}`}
+              className="fixed pointer-events-none"
+              initial={{ opacity: 0, rotate: 0 }}
+              animate={{ opacity: 0.15, rotate: 360 }}
+              exit={{ opacity: 0 }}
+              transition={{ 
+                opacity: { duration: 2 },
+                rotate: { duration: 30, repeat: Infinity, ease: "linear" }
               }}
               style={{
-                width: `${240 + mood.intensity * 0.8}px`,
-                height: `${240 + mood.intensity * 0.8}px`,
-                left: '45%',
-                top: '8%',
-                background: `radial-gradient(circle, ${mood.color}60 0%, ${mood.color}30 50%, transparent 85%)`,
-                mixBlendMode: 'screen'
+                width: '100px',
+                height: '100px',
+                left: '25%',
+                top: '60%',
+                background: `linear-gradient(45deg, ${currentTheme.primary}40, transparent)`,
+                borderRadius: '30%',
+                filter: 'blur(20px)'
               }}
             />
 
             <motion.div
-              key={`orb4-${mood.primary}`}
-              className="floating-orb"
-              initial={{ opacity: 0, scale: 0.8, filter: "blur(50px)" }}
-              animate={{ 
-                opacity: [0.15, 0.3, 0.15],
-                scale: [1, 1.06, 1],
-                x: [0, -60, 40, 0],
-                y: [0, -40, 60, 0],
-                filter: ["blur(50px)", "blur(30px)", "blur(50px)"]
-              }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{
-                opacity: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 6 },
-                scale: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: 6 },
-                x: { duration: 18, repeat: Infinity, ease: "easeInOut", delay: 20 },
-                y: { duration: 16, repeat: Infinity, ease: "easeInOut", delay: 20 },
-                filter: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 6 }
+              key={`geo2-${mood.primary}`}
+              className="fixed pointer-events-none"
+              initial={{ opacity: 0, rotate: 0 }}
+              animate={{ opacity: 0.1, rotate: -360 }}
+              exit={{ opacity: 0 }}
+              transition={{ 
+                opacity: { duration: 2.5, delay: 1 },
+                rotate: { duration: 45, repeat: Infinity, ease: "linear" }
               }}
               style={{
-                width: `${180 + mood.intensity * 0.6}px`,
-                height: `${180 + mood.intensity * 0.6}px`,
-                right: '35%',
-                top: '35%',
-                background: `radial-gradient(circle, ${mood.color}50 0%, ${mood.color}25 55%, transparent 90%)`,
-                mixBlendMode: 'screen'
+                width: '80px',
+                height: '80px',
+                right: '30%',
+                top: '40%',
+                background: `linear-gradient(135deg, ${currentTheme.secondary}30, transparent)`,
+                borderRadius: '50%',
+                filter: 'blur(15px)'
+              }}
+            />
+
+            {/* Subtle gradient overlay */}
+            <motion.div
+              key={`overlay-${mood.primary}`}
+              className="fixed inset-0 pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 2 }}
+              style={{
+                background: `
+                  radial-gradient(circle at ${50 + (mood.coordinates?.x || 0) / 20}% ${50 + (mood.coordinates?.y || 0) / 20}%, 
+                    ${currentTheme.primary}05 0%, 
+                    transparent 60%)
+                `,
+                mixBlendMode: 'overlay'
               }}
             />
           </>
         )}
       </AnimatePresence>
 
-      {/* Mood-based overlay */}
-      <AnimatePresence>
-        {mood && (
-          <motion.div
-            key={`overlay-${mood.primary}`}
-            className="fixed inset-0 pointer-events-none z-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
-            style={{
-              background: `radial-gradient(circle at ${50 + mood.coordinates.x / 10}% ${50 + mood.coordinates.y / 10}%, transparent 0%, rgba(0,0,0,0.3) 100%)`,
-              mixBlendMode: 'multiply'
-            }}
-          />
-        )}
-      </AnimatePresence>
+      {/* CSS Keyframes */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+          25% { transform: translateY(-20px) translateX(10px) scale(1.05); }
+          50% { transform: translateY(0) translateX(20px) scale(1); }
+          75% { transform: translateY(15px) translateX(-10px) scale(0.95); }
+        }
+
+        @keyframes drift {
+          0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+          33% { transform: translateY(-15px) translateX(-20px) rotate(2deg); }
+          66% { transform: translateY(10px) translateX(15px) rotate(-1deg); }
+        }
+
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); opacity: 0.25; }
+          50% { transform: scale(1.1); opacity: 0.4; }
+        }
+
+        @keyframes morph {
+          0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+          25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
+          50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+          75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
+        }
+
+        @keyframes morph2 {
+          0%, 100% { border-radius: 50% 20% 80% 40% / 60% 30% 70% 40%; }
+          25% { border-radius: 20% 60% 40% 80% / 30% 70% 40% 60%; }
+          50% { border-radius: 80% 40% 60% 20% / 70% 40% 60% 30%; }
+          75% { border-radius: 40% 80% 20% 60% / 40% 60% 30% 70%; }
+        }
+
+        @keyframes morph3 {
+          0%, 100% { border-radius: 40% 60% 30% 70% / 50% 40% 60% 50%; }
+          50% { border-radius: 60% 40% 70% 30% / 40% 60% 50% 40%; }
+        }
+      `}</style>
     </>
   )
 }

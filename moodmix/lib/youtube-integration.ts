@@ -229,28 +229,17 @@ class YouTubeMusicIntegration {
     return 0
   }
 
-  // Fallback when API key is not available - uses YouTube search URLs
+  // Fallback when API key is not available - provides search links instead of embeds
   private async fallbackSearch(trackName: string, artistName: string): Promise<YouTubeSearchResponse> {
-    const searchQuery = `${trackName} ${artistName} official music video`
-    const encodedQuery = encodeURIComponent(searchQuery)
+    console.log(`⚠️ YouTube API key not available for "${trackName}" by "${artistName}" - providing search fallback`)
     
-    // Generate likely video IDs based on popular music video patterns
-    const mockResults: YouTubeVideoResult[] = [{
-      id: 'fallback-video',
-      title: `${trackName} - ${artistName} (Music Video)`,
-      channelTitle: `${artistName} Official`,
-      thumbnail: '/api/placeholder-thumbnail.jpg',
-      duration: '3:45',
-      publishedAt: new Date().toISOString(),
-      embedUrl: `https://www.youtube.com/results?search_query=${encodedQuery}`,
-      watchUrl: `https://www.youtube.com/results?search_query=${encodedQuery}`
-    }]
-
+    // When no API key is available, return empty results
+    // This will hide the YouTube button rather than showing a broken embed
     return {
       success: false, // Indicates fallback mode
-      videos: mockResults,
-      totalResults: 1,
-      searchQuery
+      videos: [], // No embeddable videos available
+      totalResults: 0,
+      searchQuery: `${trackName} ${artistName} official music video`
     }
   }
 

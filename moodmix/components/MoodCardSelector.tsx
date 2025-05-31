@@ -153,26 +153,48 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
   const handleMoodSelect = async (mood: typeof MOOD_CARDS[0]) => {
     if (isSelecting) return
     
-    setIsSelecting(true)
-    setSelectedMood(mood.name)
+    try {
+      setIsSelecting(true)
+      setSelectedMood(mood.name)
 
-    // Create mood selection object
-    const selection: MoodSelection = {
-      primary: mood.name,
-      color: mood.gradient.includes('amber') ? '#fbbf24' : 
-             mood.gradient.includes('red') ? '#ef4444' :
-             mood.gradient.includes('teal') ? '#14b8a6' :
-             mood.gradient.includes('rose') ? '#ec4899' :
-             mood.gradient.includes('purple') ? '#8b5cf6' :
-             mood.gradient.includes('emerald') ? '#10b981' : '#6366f1',
-      intensity: 75, // Default intensity for card selection
-      coordinates: { x: 0, y: 0 } // Not needed for card selection
+      // Create mood selection object with error handling
+      const colorMap: Record<string, string> = {
+        'amber': '#fbbf24',
+        'red': '#ef4444', 
+        'teal': '#14b8a6',
+        'rose': '#ec4899',
+        'purple': '#8b5cf6',
+        'emerald': '#10b981'
+      }
+      
+      let color = '#6366f1' // default
+      for (const [key, value] of Object.entries(colorMap)) {
+        if (mood.gradient.includes(key)) {
+          color = value
+          break
+        }
+      }
+
+      const selection: MoodSelection = {
+        primary: mood.name,
+        color,
+        intensity: 75,
+        coordinates: { x: 0, y: 0 }
+      }
+
+      // Small delay for visual feedback
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      // Call parent with error handling
+      if (typeof onMoodSelect === 'function') {
+        onMoodSelect(selection)
+      }
+    } catch (error) {
+      console.error('Error selecting mood:', error)
+      // Reset state on error
+      setIsSelecting(false)
+      setSelectedMood(null)
     }
-
-    // Small delay for visual feedback
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
-    onMoodSelect(selection)
   }
 
   const containerVariants = {

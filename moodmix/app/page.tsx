@@ -20,9 +20,24 @@ export default function Home() {
   const handleMoodSelect = (mood: MoodSelection) => {
     setCurrentMood(mood)
     setShowWheel(false)
-    // Update CSS variables for dynamic theming
+    // Map new mood names to existing CSS classes
     if (typeof window !== 'undefined') {
-      document.documentElement.className = `mood-${mood.primary}`
+      const moodClassMap: Record<string, string> = {
+        'euphoric': 'mood-happy',
+        'melancholic': 'mood-sad', 
+        'energetic': 'mood-energetic',
+        'serene': 'mood-calm',
+        'passionate': 'mood-love',
+        'contemplative': 'mood-calm',
+        'nostalgic': 'mood-sad',
+        'rebellious': 'mood-energetic',
+        'mystical': 'mood-calm',
+        'triumphant': 'mood-happy',
+        'vulnerable': 'mood-sad',
+        'adventurous': 'mood-energetic'
+      }
+      const mappedClass = moodClassMap[mood.primary] || 'mood-happy'
+      document.documentElement.className = mappedClass
     }
   }
 

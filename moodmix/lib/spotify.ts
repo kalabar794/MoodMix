@@ -121,67 +121,62 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
   }
 }
 
-// Generate search queries based on mood parameters - balanced for results + preview availability
+// Generate search queries targeting mainstream hits with high preview availability
 function getMoodSearchQueries(params: MoodMusicParams): string[] {
   const queries: string[] = []
   
-  // High-energy, positive moods
+  // High-energy, positive moods - target mainstream pop hits
   if (params.valence > 0.7 && params.energy > 0.7) {
     queries.push(
-      'genre:pop happy energetic',
-      'genre:dance upbeat',
-      'year:2020-2024 energetic'
+      'track:"uptown funk" OR track:"can\'t stop the feeling" OR track:"happy" OR track:"shake it off"',
+      'track:"blinding lights" OR track:"levitating" OR track:"good 4 u" OR track:"anti-hero"',
+      'year:2020-2024 genre:pop NOT acoustic NOT instrumental'
     )
   }
-  // Sad/emotional moods
+  // Sad/emotional moods - target emotional pop ballads and hits
   else if (params.valence < 0.3) {
     queries.push(
-      'genre:pop sad emotional',
-      'genre:indie melancholic',
-      'year:2018-2024 heartbreak'
+      'track:"someone like you" OR track:"hello" OR track:"when the party\'s over" OR track:"drivers license"',
+      'track:"all too well" OR track:"somebody that i used to know" OR track:"stay with me"',
+      'year:2018-2024 genre:pop sad NOT frequency NOT meditation'
     )
   }
-  // Chill/relaxed moods
+  // Chill/relaxed moods - target mellow hits
   else if (params.energy < 0.3) {
     queries.push(
-      'genre:indie chill relaxing',
-      'genre:electronic ambient',
-      'year:2019-2024 calm'
+      'track:"stay" OR track:"peaches" OR track:"watermelon sugar" OR track:"circles"',
+      'track:"lovely" OR track:"perfect" OR track:"thinking out loud"',
+      'year:2019-2024 genre:indie-pop NOT ambient NOT meditation'
     )
   }
-  // High energy but moderate valence
+  // High energy but moderate valence - electronic and hip-hop hits
   else if (params.energy > 0.7) {
     queries.push(
-      'genre:electronic energetic',
-      'genre:hip-hop intense',
-      'year:2020-2024 powerful'
+      'track:"closer" OR track:"don\'t start now" OR track:"sicko mode" OR track:"starboy"',
+      'track:"industry baby" OR track:"heat waves" OR track:"stay" OR track:"as it was"',
+      'year:2020-2024 genre:electronic NOT trance NOT meditation'
     )
   }
-  // Default popular music
+  // Default popular hits
   else {
     queries.push(
-      'year:2020-2024 genre:pop',
-      'genre:indie popular',
-      'year:2021-2024 trending'
+      'track:"shape of you" OR track:"bad guy" OR track:"sunflower" OR track:"rockstar"',
+      'track:"flowers" OR track:"unholy" OR track:"as it was" OR track:"about damn time"',
+      'year:2020-2024 NOT meditation NOT frequency NOT instrumental'
     )
-  }
-  
-  // Add a fallback genre-based query
-  if (params.genres.length > 0) {
-    queries.push(`genre:${params.genres[0]}`)
   }
   
   return queries.slice(0, 3)
 }
 
-// Fallback search for tracks when primary search doesn't yield enough
+// Fallback search targeting guaranteed mainstream hits
 async function searchFallbackTracks(token: string, needed: number): Promise<SpotifyTrack[]> {
   const fallbackQueries = [
-    'year:2020-2024 genre:pop',
-    'genre:indie popular',
-    'year:2021-2024 trending',
-    'genre:electronic',
-    'genre:rock popular'
+    'track:"shape of you" OR track:"blinding lights" OR track:"bad guy" OR track:"watermelon sugar" OR track:"levitating"',
+    'track:"as it was" OR track:"flowers" OR track:"anti-hero" OR track:"unholy" OR track:"about damn time"',
+    'track:"stay" OR track:"good 4 u" OR track:"drivers license" OR track:"heat waves" OR track:"peaches"',
+    'year:2020-2024 genre:pop NOT meditation NOT frequency NOT healing',
+    'artist:"Taylor Swift" OR artist:"Ed Sheeran" OR artist:"Dua Lipa" year:2020-2024'
   ]
   
   const tracks: SpotifyTrack[] = []

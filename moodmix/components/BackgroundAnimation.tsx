@@ -10,6 +10,7 @@ interface BackgroundAnimationProps {
 
 // Particle configuration for each mood - Enhanced for vibrancy
 const MOOD_PARTICLES = {
+  // Legacy mood names (for backward compatibility)
   happy: {
     count: 35,
     color: 'rgba(255, 224, 85, 0.4)',
@@ -45,6 +46,73 @@ const MOOD_PARTICLES = {
     color: 'rgba(77, 208, 225, 0.4)',
     speed: 1,
     size: { min: 3, max: 7 }
+  },
+  // New sophisticated mood names
+  euphoric: {
+    count: 45,
+    color: 'rgba(251, 191, 36, 0.4)',
+    speed: 3.5,
+    size: { min: 3, max: 9 }
+  },
+  melancholic: {
+    count: 25,
+    color: 'rgba(100, 181, 246, 0.4)',
+    speed: 1.5,
+    size: { min: 2, max: 6 }
+  },
+  serene: {
+    count: 20,
+    color: 'rgba(20, 184, 166, 0.4)',
+    speed: 1,
+    size: { min: 3, max: 7 }
+  },
+  passionate: {
+    count: 35,
+    color: 'rgba(236, 72, 153, 0.4)',
+    speed: 2.8,
+    size: { min: 4, max: 9 }
+  },
+  contemplative: {
+    count: 22,
+    color: 'rgba(139, 92, 246, 0.4)',
+    speed: 1.2,
+    size: { min: 3, max: 7 }
+  },
+  nostalgic: {
+    count: 28,
+    color: 'rgba(217, 119, 6, 0.4)',
+    speed: 1.8,
+    size: { min: 2, max: 6 }
+  },
+  rebellious: {
+    count: 50,
+    color: 'rgba(220, 38, 127, 0.4)',
+    speed: 4,
+    size: { min: 3, max: 10 }
+  },
+  mystical: {
+    count: 30,
+    color: 'rgba(168, 85, 247, 0.4)',
+    speed: 2.2,
+    size: { min: 3, max: 8 }
+  },
+  triumphant: {
+    count: 40,
+    color: 'rgba(245, 158, 11, 0.4)',
+    speed: 3.2,
+    size: { min: 4, max: 9 }
+  },
+  vulnerable: {
+    count: 20,
+    color: 'rgba(148, 163, 184, 0.4)',
+    speed: 1.3,
+    size: { min: 2, max: 6 }
+  },
+  adventurous: {
+    count: 42,
+    color: 'rgba(16, 185, 129, 0.4)',
+    speed: 3.8,
+    size: { min: 3, max: 10 }
   }
 }
 

@@ -70,7 +70,7 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
           },
         })
 
-        const tracks: SpotifyTrack[] = response.data.tracks.items
+        const allQueryTracks: SpotifyTrack[] = response.data.tracks.items
           .map((track: any) => ({
             id: track.id,
             name: track.name,
@@ -85,9 +85,13 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
             duration_ms: track.duration_ms,
             popularity: track.popularity || 0
           }))
-          .filter((track: SpotifyTrack) => track.preview_url !== null) // Only include tracks with previews
 
-        allTracks.push(...tracks)
+        // Prioritize tracks with previews, but include all tracks
+        const tracksWithPreviews = allQueryTracks.filter((track: SpotifyTrack) => track.preview_url !== null)
+        const tracksWithoutPreviews = allQueryTracks.filter((track: SpotifyTrack) => track.preview_url === null)
+        
+        // Add tracks with previews first, then tracks without previews
+        allTracks.push(...tracksWithPreviews, ...tracksWithoutPreviews)
       } catch (queryError) {
         console.error(`Error with query "${query}":`, queryError)
         // Continue with other queries
@@ -117,62 +121,67 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
   }
 }
 
-// Generate search queries based on mood parameters - optimized for preview availability
+// Generate search queries based on mood parameters - balanced for results + preview availability
 function getMoodSearchQueries(params: MoodMusicParams): string[] {
   const queries: string[] = []
   
   // High-energy, positive moods
   if (params.valence > 0.7 && params.energy > 0.7) {
     queries.push(
-      'artist:Dua Lipa OR artist:Bruno Mars OR artist:"The Weeknd" OR artist:Ariana Grande',
-      'artist:Taylor Swift OR artist:Ed Sheeran OR artist:Billie Eilish',
-      'artist:Doja Cat OR artist:Post Malone OR artist:Olivia Rodrigo'
+      'genre:pop happy energetic',
+      'genre:dance upbeat',
+      'year:2020-2024 energetic'
     )
   }
   // Sad/emotional moods
   else if (params.valence < 0.3) {
     queries.push(
-      'artist:Adele OR artist:"Sam Smith" OR artist:"Lana Del Rey"',
-      'artist:"Billie Eilish" OR artist:Hozier OR artist:"Lewis Capaldi"',
-      'artist:"The Weeknd" OR artist:"Lorde" OR artist:"Bon Iver"'
+      'genre:pop sad emotional',
+      'genre:indie melancholic',
+      'year:2018-2024 heartbreak'
     )
   }
   // Chill/relaxed moods
   else if (params.energy < 0.3) {
     queries.push(
-      'artist:"Billie Eilish" OR artist:Lorde OR artist:"The 1975"',
-      'artist:"Arctic Monkeys" OR artist:"Tame Impala" OR artist:Hozier',
-      'artist:"Mac Miller" OR artist:"Frank Ocean" OR artist:"Rex Orange County"'
+      'genre:indie chill relaxing',
+      'genre:electronic ambient',
+      'year:2019-2024 calm'
     )
   }
   // High energy but moderate valence
   else if (params.energy > 0.7) {
     queries.push(
-      'artist:"The Weeknd" OR artist:"Dua Lipa" OR artist:"Calvin Harris"',
-      'artist:"David Guetta" OR artist:"Martin Garrix" OR artist:"Swedish House Mafia"',
-      'artist:"Zedd" OR artist:"Marshmello" OR artist:"Tiësto"'
+      'genre:electronic energetic',
+      'genre:hip-hop intense',
+      'year:2020-2024 powerful'
     )
   }
-  // Default popular artists with high preview availability
+  // Default popular music
   else {
     queries.push(
-      'artist:"Taylor Swift" OR artist:"Ed Sheeran" OR artist:"Bruno Mars"',
-      'artist:"Ariana Grande" OR artist:"Justin Bieber" OR artist:"Dua Lipa"',
-      'artist:"The Weeknd" OR artist:"Post Malone" OR artist:"Billie Eilish"'
+      'year:2020-2024 genre:pop',
+      'genre:indie popular',
+      'year:2021-2024 trending'
     )
+  }
+  
+  // Add a fallback genre-based query
+  if (params.genres.length > 0) {
+    queries.push(`genre:${params.genres[0]}`)
   }
   
   return queries.slice(0, 3)
 }
 
-// Fallback search for tracks with previews when primary search doesn't yield enough
+// Fallback search for tracks when primary search doesn't yield enough
 async function searchFallbackTracks(token: string, needed: number): Promise<SpotifyTrack[]> {
   const fallbackQueries = [
     'year:2020-2024 genre:pop',
-    'year:2018-2024 genre:hip-hop',
-    'year:2019-2024 genre:electronic',
-    'artist:"Taylor Swift" OR artist:"Ed Sheeran" OR artist:"Ariana Grande"',
-    'track:"blinding lights" OR track:"shape of you" OR track:"bad guy"'
+    'genre:indie popular',
+    'year:2021-2024 trending',
+    'genre:electronic',
+    'genre:rock popular'
   ]
   
   const tracks: SpotifyTrack[] = []
@@ -206,9 +215,12 @@ async function searchFallbackTracks(token: string, needed: number): Promise<Spot
           duration_ms: track.duration_ms,
           popularity: track.popularity || 0
         }))
-        .filter((track: any) => track.preview_url !== null)
 
-      tracks.push(...queryTracks)
+      // Prioritize tracks with previews but include all tracks
+      const withPreviews = queryTracks.filter((track: any) => track.preview_url !== null)
+      const withoutPreviews = queryTracks.filter((track: any) => track.preview_url === null)
+      
+      tracks.push(...withPreviews, ...withoutPreviews)
     } catch (error) {
       console.error('Fallback search error:', error)
     }

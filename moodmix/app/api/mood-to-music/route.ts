@@ -48,11 +48,18 @@ export async function POST(request: NextRequest) {
     // Get mood description
     const description = getMoodDescription(moodSelection)
 
-    // Log for debugging
-    // Log for development - remove in production
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Mood: ${moodSelection.primary}, Intensity: ${moodSelection.intensity}, Tracks found: ${tracks.length}`)
-    }
+    // Log for debugging - include in production for Vercel debugging
+    console.log(`Mood: ${moodSelection.primary}, Intensity: ${moodSelection.intensity}, Tracks found: ${tracks.length}`)
+    console.log('Music params:', JSON.stringify(musicParams, null, 2))
+    console.log('Validated genres:', validatedGenres)
+    
+    // Log credentials status without exposing actual values
+    console.log('Spotify credentials check:', {
+      clientId: !!process.env.SPOTIFY_CLIENT_ID,
+      clientSecret: !!process.env.SPOTIFY_CLIENT_SECRET,
+      clientIdLength: process.env.SPOTIFY_CLIENT_ID?.length || 0,
+      clientSecretLength: process.env.SPOTIFY_CLIENT_SECRET?.length || 0
+    })
 
     return NextResponse.json({
       success: true,

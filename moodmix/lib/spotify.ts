@@ -23,6 +23,7 @@ async function getAccessToken(): Promise<string> {
   }
 
   try {
+    console.log('Attempting to get Spotify access token...')
     const response = await axios.post(
       SPOTIFY_TOKEN_URL,
       new URLSearchParams({
@@ -36,13 +37,22 @@ async function getAccessToken(): Promise<string> {
       }
     )
 
+    console.log('Spotify token response status:', response.status)
     accessToken = response.data.access_token
     // Set expiry 5 minutes before actual expiry for safety
     tokenExpiry = Date.now() + (response.data.expires_in - 300) * 1000
 
+    console.log('Successfully obtained Spotify access token')
     return accessToken!
   } catch (error) {
     console.error('Error getting Spotify access token:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      })
+    }
     throw new Error('Failed to authenticate with Spotify')
   }
 }
@@ -54,10 +64,12 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
   try {
     // Use search API with mood-based queries optimized for preview availability
     const moodQueries = getMoodSearchQueries(params)
+    console.log('Generated mood queries:', moodQueries)
     const allTracks: SpotifyTrack[] = []
 
     for (const query of moodQueries) {
       try {
+        console.log(`Searching with query: "${query}"`)
         const response = await axios.get(`${SPOTIFY_API_BASE}/search`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -70,6 +82,7 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
           },
         })
 
+        console.log(`Query "${query}" returned ${response.data.tracks.items.length} tracks`)
         const allQueryTracks: SpotifyTrack[] = response.data.tracks.items
           .map((track: any) => ({
             id: track.id,

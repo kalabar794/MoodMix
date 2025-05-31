@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SpotifyTrack } from '@/lib/types'
+import { YouTubeMusicIntegration, YouTubeVideoResult } from '@/lib/youtube-integration'
+import YouTubePlayer, { YouTubeButton } from './YouTubePlayer'
 
 interface MusicResultsProps {
   tracks: SpotifyTrack[]
@@ -16,8 +18,12 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
   const [audioProgress, setAudioProgress] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
   const [volume, setVolume] = useState(0.7)
+  const [youtubeVideos, setYoutubeVideos] = useState<Record<string, YouTubeVideoResult | null>>({})
+  const [youtubePlaying, setYoutubePlaying] = useState<YouTubeVideoResult | null>(null)
+  const [youtubeLoading, setYoutubeLoading] = useState<Record<string, boolean>>({})
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
+  const youtubeAPI = useRef<YouTubeMusicIntegration | null>(null)
 
   // Handle audio playback with enhanced controls
   const handlePlayPause = async (track: SpotifyTrack) => {
@@ -108,6 +114,85 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
       audioRef.current.currentTime = seekTime
       setAudioProgress(seekTime)
     }
+  }
+
+
+  // Initialize YouTube API and search for videos
+  useEffect(() => {
+    youtubeAPI.current = new YouTubeMusicIntegration()
+    
+    const performSearch = async () => {
+      if (!youtubeAPI.current || tracks.length === 0) return
+
+      console.log('🎬 Searching YouTube videos for tracks...')
+      
+      // Initialize loading states
+      const loadingStates: Record<string, boolean> = {}
+      tracks.forEach(track => {
+        loadingStates[track.id] = true
+      })
+      setYoutubeLoading(loadingStates)
+
+      try {
+        // Search for videos in batches
+        const searchData = tracks.map(track => ({
+          name: track.name,
+          artist: track.artists[0]?.name || 'Unknown Artist'
+        }))
+
+        const results = await youtubeAPI.current.searchMultipleTracks(searchData)
+        
+        // Map results back to track IDs
+        const videoMap: Record<string, YouTubeVideoResult | null> = {}
+        tracks.forEach(track => {
+          const key = `${track.name}-${track.artists[0]?.name || 'Unknown Artist'}`
+          const searchResult = results[key]
+          videoMap[track.id] = searchResult?.videos?.[0] || null
+          
+          if (searchResult?.success && searchResult.videos.length > 0) {
+            console.log(`✅ Found YouTube video for "${track.name}":`, searchResult.videos[0].title)
+          } else {
+            console.log(`⚠️ No YouTube video found for "${track.name}"`)
+          }
+        })
+
+        setYoutubeVideos(videoMap)
+      } catch (error) {
+        console.error('YouTube search error:', error)
+      }
+
+      // Clear loading states
+      setYoutubeLoading({})
+    }
+    
+    if (tracks.length > 0) {
+      performSearch()
+    }
+  }, [tracks])
+
+  // Handle YouTube video playback
+  const handleYouTubePlay = (track: SpotifyTrack) => {
+    const video = youtubeVideos[track.id]
+    if (!video) return
+
+    // Pause any current audio
+    if (audioRef.current) {
+      audioRef.current.pause()
+      setPlayingTrackId(null)
+    }
+
+    // Show YouTube player
+    setYoutubePlaying(video)
+  }
+
+  // Close YouTube player
+  const handleYouTubeClose = () => {
+    setYoutubePlaying(null)
+  }
+
+  // Handle YouTube playback start
+  const handleYouTubePlayStart = () => {
+    console.log('🎬 YouTube video started playing')
   }
 
   // Cleanup audio on unmount
@@ -250,6 +335,9 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
                   audioDuration={playingTrackId === track.id ? audioDuration : 0}
                   onPlay={() => handlePlayPause(track)}
                   onSeek={handleSeek}
+                  youtubeVideo={youtubeVideos[track.id] || null}
+                  youtubeLoading={youtubeLoading[track.id] || false}
+                  onYouTubePlay={() => handleYouTubePlay(track)}
                   index={index}
                 />
               </motion.div>
@@ -383,6 +471,15 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* YouTube Video Player */}
+      <YouTubePlayer
+        video={youtubePlaying}
+        isVisible={!!youtubePlaying}
+        onClose={handleYouTubeClose}
+        onPlay={handleYouTubePlayStart}
+        autoplay={true}
+      />
     </div>
   )
 }
@@ -396,6 +493,9 @@ function ModernMusicCard({
   audioDuration,
   onPlay, 
   onSeek,
+  youtubeVideo,
+  youtubeLoading,
+  onYouTubePlay,
   index 
 }: { 
   track: SpotifyTrack
@@ -405,6 +505,9 @@ function ModernMusicCard({
   audioDuration: number
   onPlay: () => void
   onSeek: (time: number) => void
+  youtubeVideo: YouTubeVideoResult | null
+  youtubeLoading: boolean
+  onYouTubePlay: () => void
   index: number
 }) {
   // Defensive checks
@@ -479,6 +582,13 @@ function ModernMusicCard({
 
         {/* Audio Controls */}
         <div className="flex items-center gap-2">
+          {/* YouTube Video Button */}
+          <YouTubeButton
+            video={youtubeVideo}
+            isLoading={youtubeLoading}
+            onPlay={onYouTubePlay}
+          />
+
           {/* Play/Pause Button */}
           <motion.button
             onClick={hasPreview ? onPlay : () => window.open(externalUrls.spotify, '_blank')}

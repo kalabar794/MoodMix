@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { MoodSelection } from '@/lib/types'
+import { 
+  Sun, CloudRain, Zap, Waves, Heart, 
+  Brain, Clock, Flame, Sparkles, Trophy,
+  ShieldOff, Compass 
+} from 'lucide-react'
 
 interface MoodCardSelectorProps {
   onMoodSelect: (mood: MoodSelection) => void
@@ -119,106 +124,26 @@ const MOOD_CARDS = [
   }
 ]
 
-// Clean SVG Icon Component
+// Professional Icon Component using Lucide
 function MoodIcon({ icon, className }: { icon: string; className?: string }) {
-  const renderIcon = () => {
-    switch (icon) {
-      case 'sun':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="5"/>
-            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-          </svg>
-        )
-      case 'cloud-rain':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
-            <line x1="8" y1="19" x2="8" y2="21"/>
-            <line x1="12" y1="19" x2="12" y2="23"/>
-            <line x1="16" y1="19" x2="16" y2="21"/>
-          </svg>
-        )
-      case 'zap':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>
-          </svg>
-        )
-      case 'waves':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/>
-            <path d="M2 17c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/>
-          </svg>
-        )
-      case 'heart':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-        )
-      case 'brain':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="3"/>
-            <path d="M12 14s-4 2-4 6h8c0-4-4-6-4-6z"/>
-          </svg>
-        )
-      case 'clock':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12,6 12,12 16,14"/>
-          </svg>
-        )
-      case 'flame':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-          </svg>
-        )
-      case 'sparkles':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0L9.937 15.5z"/>
-          </svg>
-        )
-      case 'trophy':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-            <path d="M4 22h16"/>
-            <path d="M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"/>
-            <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
-          </svg>
-        )
-      case 'shield-off':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19.69 14a6.9 6.9 0 0 0 .31-2V5l-8-3-3.16 1.18"/>
-            <path d="M4.73 4.73 4 5v7c0 6 8 10 8 10a20.29 20.29 0 0 0 5.62-4.38"/>
-            <line x1="1" y1="1" x2="23" y2="23"/>
-          </svg>
-        )
-      case 'compass':
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"/>
-            <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/>
-          </svg>
-        )
-      default:
-        return (
-          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        )
-    }
+  const iconMap = {
+    sun: Sun,
+    'cloud-rain': CloudRain,
+    zap: Zap,
+    waves: Waves,
+    heart: Heart,
+    brain: Brain,
+    clock: Clock,
+    flame: Flame,
+    sparkles: Sparkles,
+    trophy: Trophy,
+    'shield-off': ShieldOff,
+    compass: Compass
   }
 
-  return renderIcon()
+  const IconComponent = iconMap[icon as keyof typeof iconMap] || Heart
+  
+  return <IconComponent className={className} />
 }
 
 export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps) {
@@ -315,7 +240,9 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
             <div className="relative z-10">
               <div className="mb-4">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${mood.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  <MoodIcon icon={mood.icon} className="w-6 h-6 text-white" />
+                  <div className="w-6 h-6 text-white flex items-center justify-center">
+                    <MoodIcon icon={mood.icon} className="w-full h-full" />
+                  </div>
                 </div>
               </div>
               

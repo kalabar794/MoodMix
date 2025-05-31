@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MoodSelection } from '@/lib/types'
+import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts'
+import { useIsMobile, useIsTouchDevice } from '@/lib/hooks/useTouchGestures'
 import { 
   Sun, CloudRain, Zap, Waves, Heart, 
   Brain, Clock, Flame, Sparkles, Trophy,
@@ -149,6 +151,12 @@ function MoodIcon({ icon, className }: { icon: string; className?: string }) {
 export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null)
   const [isSelecting, setIsSelecting] = useState(false)
+  const [focusedIndex, setFocusedIndex] = useState(0)
+  const [keyboardNavigation, setKeyboardNavigation] = useState(false)
+  
+  // Mobile detection
+  const isMobile = useIsMobile()
+  const isTouchDevice = useIsTouchDevice()
 
   const handleMoodSelect = async (mood: typeof MOOD_CARDS[0]) => {
     if (isSelecting) return
@@ -197,6 +205,72 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
     }
   }
 
+  // Keyboard navigation functions
+  const handleNavigate = (direction: 'up' | 'down' | 'left' | 'right') => {
+    setKeyboardNavigation(true)
+    const cols = 4 // lg:grid-cols-4
+    const rows = Math.ceil(MOOD_CARDS.length / cols)
+    
+    let newIndex = focusedIndex
+    
+    switch (direction) {
+      case 'left':
+        newIndex = focusedIndex > 0 ? focusedIndex - 1 : MOOD_CARDS.length - 1
+        break
+      case 'right':
+        newIndex = focusedIndex < MOOD_CARDS.length - 1 ? focusedIndex + 1 : 0
+        break
+      case 'up':
+        newIndex = focusedIndex - cols
+        if (newIndex < 0) {
+          // Go to last row, same column
+          const col = focusedIndex % cols
+          newIndex = Math.min(MOOD_CARDS.length - 1, (rows - 1) * cols + col)
+        }
+        break
+      case 'down':
+        newIndex = focusedIndex + cols
+        if (newIndex >= MOOD_CARDS.length) {
+          // Go to first row, same column
+          newIndex = focusedIndex % cols
+        }
+        break
+    }
+    
+    setFocusedIndex(Math.max(0, Math.min(MOOD_CARDS.length - 1, newIndex)))
+  }
+
+  const handleConfirm = () => {
+    if (focusedIndex >= 0 && focusedIndex < MOOD_CARDS.length) {
+      handleMoodSelect(MOOD_CARDS[focusedIndex])
+    }
+  }
+
+  const handleMoodSelectByIndex = (index: number) => {
+    if (index >= 0 && index < MOOD_CARDS.length) {
+      setFocusedIndex(index)
+      handleMoodSelect(MOOD_CARDS[index])
+    }
+  }
+
+  // Set up keyboard shortcuts
+  useKeyboardShortcuts({
+    onMoodSelect: handleMoodSelectByIndex,
+    onNavigate: handleNavigate,
+    onConfirm: handleConfirm,
+    isEnabled: !isSelecting
+  })
+
+  // Hide keyboard navigation indicator after mouse use
+  useEffect(() => {
+    const handleMouseMove = () => {
+      setKeyboardNavigation(false)
+    }
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    return () => document.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -233,21 +307,28 @@ export default function MoodCardSelector({ onMoodSelect }: MoodCardSelectorProps
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className={`grid gap-4 md:gap-6 ${
+          isMobile 
+            ? 'grid-cols-2 px-4' 
+            : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+        }`}
       >
-        {MOOD_CARDS.map((mood) => (
+        {MOOD_CARDS.map((mood, index) => (
           <motion.button
             key={mood.name}
             variants={cardVariants}
             onClick={() => handleMoodSelect(mood)}
             disabled={isSelecting}
             className={`
-              relative group overflow-hidden rounded-2xl p-6 text-left
+              relative group overflow-hidden rounded-2xl text-left
               border backdrop-blur-xl transition-all duration-500
               ${mood.bgColor} ${mood.borderColor}
-              ${selectedMood === mood.name ? 'ring-2 ring-white/50 scale-105' : 'hover:scale-105'}
+              ${selectedMood === mood.name ? 'ring-2 ring-white/50 scale-105' : (isTouchDevice ? '' : 'hover:scale-105')}
               ${isSelecting && selectedMood !== mood.name ? 'opacity-40' : ''}
-              disabled:cursor-not-allowed min-h-[140px]
+              ${keyboardNavigation && focusedIndex === index ? 'ring-2 ring-purple-400/70 ring-offset-2 ring-offset-transparent scale-105' : ''}
+              ${isMobile ? 'p-4 min-h-[120px] mood-card-touch' : 'p-6 min-h-[140px]'}
+              ${isTouchDevice ? 'active:scale-95' : ''}
+              disabled:cursor-not-allowed
             `}
             whileHover={{ 
               y: -8,

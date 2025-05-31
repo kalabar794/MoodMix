@@ -2,9 +2,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* Modern Design System Variables */
+/* Modern Design System Variables - Support for Light & Dark Themes */
 :root {
-  /* Color Palette - Inspired by Guide Protection */
+  /* Color Palette - Brand Colors (theme-independent) */
   --primary-purple: #6366f1;
   --primary-dark: #4f46e5;
   --primary-light: #8b5cf6;
@@ -25,33 +25,83 @@
   --gray-900: #111827;
   --gray-950: #030712;
   
-  /* Background System */
+  /* Default Dark Theme */
   --bg-primary: #0a0a0f;
   --bg-secondary: #131318;
   --bg-tertiary: #1a1a22;
   --bg-card: rgba(255, 255, 255, 0.03);
   --bg-card-hover: rgba(255, 255, 255, 0.06);
   
-  /* Text Colors */
   --text-primary: #ffffff;
   --text-secondary: #cbd5e1;
   --text-tertiary: #94a3b8;
   --text-muted: #64748b;
   
-  /* Border Colors */
   --border-primary: rgba(255, 255, 255, 0.08);
   --border-secondary: rgba(255, 255, 255, 0.12);
   
-  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.2);
   
-  /* Glass Effects */
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-blur: 12px;
+}
+
+/* Light Theme Override */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: rgba(0, 0, 0, 0.02);
+  --bg-card-hover: rgba(0, 0, 0, 0.04);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #475569;
+  --text-muted: #64748b;
+  
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.12);
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-blur: 12px;
+}
+
+/* Auto Theme (respects system preference) */
+@media (prefers-color-scheme: light) {
+  [data-theme="auto"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: rgba(0, 0, 0, 0.02);
+    --bg-card-hover: rgba(0, 0, 0, 0.04);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-tertiary: #475569;
+    --text-muted: #64748b;
+    
+    --border-primary: rgba(0, 0, 0, 0.08);
+    --border-secondary: rgba(0, 0, 0, 0.12);
+    
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+    
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --glass-blur: 12px;
+  }
 }
 
 /* Epic Logo Animations */
@@ -567,20 +617,172 @@ body {
 
 /* Modern Loading States */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--bg-card) 0%,
-    var(--bg-card-hover) 50%,
-    var(--bg-card) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card);
   border-radius: 8px;
 }
 
+.skeleton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--bg-card-hover) 20%,
+    rgba(255, 255, 255, 0.1) 50%,
+    var(--bg-card-hover) 80%,
+    transparent 100%
+  );
+  animation: shimmer 2s ease-in-out infinite;
+  transform: translateX(-100%);
+}
+
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Enhanced loading animations */
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 20px 5px rgba(139, 92, 246, 0.2);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.loading-float {
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+.loading-rotate {
+  animation: rotate-slow 8s linear infinite;
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::before,
+  .loading-pulse,
+  .loading-float,
+  .loading-rotate {
+    animation: none;
+  }
+  
+  .skeleton {
+    background: var(--bg-card-hover);
+  }
+}
+
+/* Mobile-First Enhancements */
+@media (max-width: 768px) {
+  /* Larger touch targets for mobile */
+  .btn-primary,
+  .btn-secondary {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+
+  /* Better spacing for mobile */
+  .glass-card {
+    padding: 16px;
+    margin: 8px;
+  }
+
+  /* Mobile-optimized mood grid */
+  .mood-grid-mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+
+  /* Improved mobile header */
+  .mobile-header {
+    padding: 12px 16px;
+  }
+
+  /* Better mobile typography */
+  .text-display {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .text-title {
+    font-size: 1.5rem;
+  }
+
+  .text-heading {
+    font-size: 1.25rem;
+  }
+}
+
+/* Touch-specific enhancements */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  
+  /* Enhance touch feedback */
+  .mood-card-touch {
+    transition: transform 0.1s ease-out;
+  }
+  
+  .mood-card-touch:active {
+    transform: scale(0.95);
+  }
+
+  /* Better button feedback */
+  button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Safe area support for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-padding {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix iOS Safari viewport height issues */
+  .mobile-full-height {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Swipe gesture indicators */
+.swipe-indicator {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.swipe-indicator.show {
+  opacity: 1;
 }
 
 /* Sophisticated Utility Classes */

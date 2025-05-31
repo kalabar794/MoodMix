@@ -5,8 +5,13 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import MoodCardSelector from '@/components/MoodCardSelector'
 import BackgroundAnimation from '@/components/BackgroundAnimation'
 import MusicResults from '@/components/MusicResults'
+import ThemeToggle from '@/components/ThemeToggle'
+import KeyboardShortcuts from '@/components/KeyboardShortcuts'
+import { MoodTransitionLoader } from '@/components/LoadingComponents'
 import { MoodSelection } from '@/lib/types'
 import { useMusic } from '@/lib/hooks/useMusic'
+import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts'
+import { useIsMobile } from '@/lib/hooks/useTouchGestures'
 
 export default function Home() {
   const [currentMood, setCurrentMood] = useState<MoodSelection | null>(null)
@@ -16,6 +21,9 @@ export default function Home() {
   const { scrollY } = useScroll()
   const headerOpacity = useTransform(scrollY, [0, 100], [0.95, 1])
   const headerBlur = useTransform(scrollY, [0, 100], [16, 24])
+  
+  // Mobile detection
+  const isMobile = useIsMobile()
 
   const handleMoodSelect = (mood: MoodSelection) => {
     setCurrentMood(mood)
@@ -57,8 +65,28 @@ export default function Home() {
     }
   }
 
+  // Theme toggle functionality for keyboard shortcut
+  const toggleTheme = () => {
+    if (typeof window !== 'undefined') {
+      const currentTheme = localStorage.getItem('theme') || 'auto'
+      const themeOrder = ['auto', 'light', 'dark']
+      const currentIndex = themeOrder.indexOf(currentTheme)
+      const nextTheme = themeOrder[(currentIndex + 1) % themeOrder.length]
+      
+      document.documentElement.setAttribute('data-theme', nextTheme)
+      localStorage.setItem('theme', nextTheme)
+    }
+  }
+
+  // Main page keyboard shortcuts (only for global actions when not in mood selection)
+  useKeyboardShortcuts({
+    onThemeToggle: toggleTheme,
+    onResetMood: resetMood,
+    isEnabled: !showWheel // Only enabled when not in mood selection
+  })
+
   return (
-    <main className="min-h-screen relative overflow-hidden">
+    <main className={`min-h-screen relative overflow-hidden ${isMobile ? 'mobile-full-height safe-area-padding' : ''}`}>
       {/* Modern Background System */}
       <div className="modern-bg" />
       <div className={`gradient-overlay ${currentMood ? `mood-${currentMood.primary}` : ''}`} />
@@ -70,7 +98,7 @@ export default function Home() {
       <div className="relative z-10">
         {/* Modern Header */}
         <motion.header 
-          className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
+          className={`fixed top-0 left-0 right-0 z-50 ${isMobile ? 'px-4 py-3' : 'px-6 py-4'}`}
           style={{ 
             opacity: headerOpacity,
             backdropFilter: `blur(${headerBlur}px)`
@@ -149,30 +177,39 @@ export default function Home() {
                 </div>
               </motion.div>
               
-              {currentMood && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  className="flex items-center gap-4"
-                >
-                  <div className="text-right">
-                    <p className="text-small">Current Mood</p>
-                    <p className="text-body font-medium capitalize">{currentMood.primary}</p>
-                  </div>
-                  <button
-                    className="btn-secondary"
-                    onClick={resetMood}
+              <div className="flex items-center gap-4">
+                {currentMood && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    className="flex items-center gap-4"
                   >
-                    Change Mood
-                  </button>
-                </motion.div>
-              )}
+                    <div className="text-right">
+                      <p className="text-small">Current Mood</p>
+                      <p className="text-body font-medium capitalize">{currentMood.primary}</p>
+                    </div>
+                    <button
+                      className="btn-secondary"
+                      onClick={resetMood}
+                    >
+                      Change Mood
+                    </button>
+                  </motion.div>
+                )}
+                {/* Theme Toggle & Keyboard Shortcuts - Always visible */}
+                <ThemeToggle />
+                <KeyboardShortcuts />
+              </div>
             </div>
           </div>
         </motion.header>
 
         {/* Main Content Area */}
-        <div className={`min-h-screen flex flex-col px-6 pb-16 ${showWheel && !currentMood ? 'justify-center pt-32' : 'pt-24'}`}>
+        <div className={`min-h-screen flex flex-col pb-16 ${
+          isMobile 
+            ? 'px-0 pt-20' 
+            : 'px-6 pt-24'
+        } ${showWheel && !currentMood ? (isMobile ? 'justify-start' : 'justify-center pt-32') : ''}`}>
           <div className="max-w-4xl mx-auto w-full">
             <AnimatePresence mode="wait">
               {/* Mood Selection View */}
@@ -348,6 +385,13 @@ export default function Home() {
           </div>
         </motion.footer>
       </div>
+
+      {/* Mood Transition Loading Overlay */}
+      <AnimatePresence>
+        {isLoading && currentMood && (
+          <MoodTransitionLoader mood={currentMood.primary} />
+        )}
+      </AnimatePresence>
     </main>
   )
 }

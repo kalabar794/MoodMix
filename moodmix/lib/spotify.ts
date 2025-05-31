@@ -121,62 +121,62 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
   }
 }
 
-// Generate search queries targeting mainstream hits with high preview availability
+// Generate search queries using broader terms more likely to return results
 function getMoodSearchQueries(params: MoodMusicParams): string[] {
   const queries: string[] = []
   
-  // High-energy, positive moods - target mainstream pop hits
+  // High-energy, positive moods - use broad positive keywords
   if (params.valence > 0.7 && params.energy > 0.7) {
     queries.push(
-      'track:"uptown funk" OR track:"can\'t stop the feeling" OR track:"happy" OR track:"shake it off"',
-      'track:"blinding lights" OR track:"levitating" OR track:"good 4 u" OR track:"anti-hero"',
-      'year:2020-2024 genre:pop NOT acoustic NOT instrumental'
+      'happy energetic upbeat dance pop year:2020-2024',
+      'party celebration fun dance year:2018-2024',
+      'pop rock electronic dance energy year:2019-2024'
     )
   }
-  // Sad/emotional moods - target emotional pop ballads and hits
+  // Sad/emotional moods - use broad emotional keywords
   else if (params.valence < 0.3) {
     queries.push(
-      'track:"someone like you" OR track:"hello" OR track:"when the party\'s over" OR track:"drivers license"',
-      'track:"all too well" OR track:"somebody that i used to know" OR track:"stay with me"',
-      'year:2018-2024 genre:pop sad NOT frequency NOT meditation'
+      'sad emotional ballad love year:2020-2024',
+      'heartbreak melancholy piano acoustic year:2018-2024',
+      'indie pop sad slow year:2019-2024'
     )
   }
-  // Chill/relaxed moods - target mellow hits
+  // Chill/relaxed moods - use broad chill keywords
   else if (params.energy < 0.3) {
     queries.push(
-      'track:"stay" OR track:"peaches" OR track:"watermelon sugar" OR track:"circles"',
-      'track:"lovely" OR track:"perfect" OR track:"thinking out loud"',
-      'year:2019-2024 genre:indie-pop NOT ambient NOT meditation'
+      'chill relaxing calm peaceful year:2020-2024',
+      'indie acoustic mellow soft year:2018-2024',
+      'ambient chill pop slow year:2019-2024'
     )
   }
-  // High energy but moderate valence - electronic and hip-hop hits
+  // High energy but moderate valence - electronic and hip-hop
   else if (params.energy > 0.7) {
     queries.push(
-      'track:"closer" OR track:"don\'t start now" OR track:"sicko mode" OR track:"starboy"',
-      'track:"industry baby" OR track:"heat waves" OR track:"stay" OR track:"as it was"',
-      'year:2020-2024 genre:electronic NOT trance NOT meditation'
+      'electronic dance hip-hop rap year:2020-2024',
+      'pop rock energy beat year:2018-2024',
+      'electronic pop dance year:2019-2024'
     )
   }
-  // Default popular hits
+  // Default popular music
   else {
     queries.push(
-      'track:"shape of you" OR track:"bad guy" OR track:"sunflower" OR track:"rockstar"',
-      'track:"flowers" OR track:"unholy" OR track:"as it was" OR track:"about damn time"',
-      'year:2020-2024 NOT meditation NOT frequency NOT instrumental'
+      'pop hit chart year:2020-2024',
+      'popular music mainstream year:2018-2024',
+      'pop rock indie year:2019-2024'
     )
   }
   
   return queries.slice(0, 3)
 }
 
-// Fallback search targeting guaranteed mainstream hits
+// Fallback search using simple, broad terms most likely to return results
 async function searchFallbackTracks(token: string, needed: number): Promise<SpotifyTrack[]> {
   const fallbackQueries = [
-    'track:"shape of you" OR track:"blinding lights" OR track:"bad guy" OR track:"watermelon sugar" OR track:"levitating"',
-    'track:"as it was" OR track:"flowers" OR track:"anti-hero" OR track:"unholy" OR track:"about damn time"',
-    'track:"stay" OR track:"good 4 u" OR track:"drivers license" OR track:"heat waves" OR track:"peaches"',
-    'year:2020-2024 genre:pop NOT meditation NOT frequency NOT healing',
-    'artist:"Taylor Swift" OR artist:"Ed Sheeran" OR artist:"Dua Lipa" year:2020-2024'
+    'pop music year:2020-2024',
+    'chart hits popular year:2018-2024',
+    'top 40 mainstream year:2019-2024',
+    'dance pop electronic year:2020-2024',
+    'rock indie alternative year:2018-2024'
   ]
   
   const tracks: SpotifyTrack[] = []

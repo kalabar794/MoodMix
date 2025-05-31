@@ -31,6 +31,7 @@ export interface SpotifyTrack {
     spotify: string;
   };
   duration_ms: number;
+  popularity?: number;
 }
 
 export interface MoodMusicParams {

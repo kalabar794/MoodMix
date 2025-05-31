@@ -12,34 +12,101 @@ interface MusicResultsProps {
 
 export default function MusicResults({ tracks, isLoading, moodDescription }: MusicResultsProps) {
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null)
+  const [isBuffering, setIsBuffering] = useState(false)
+  const [audioProgress, setAudioProgress] = useState(0)
+  const [audioDuration, setAudioDuration] = useState(0)
+  const [volume, setVolume] = useState(0.7)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const progressInterval = useRef<NodeJS.Timeout | null>(null)
 
-  // Handle audio playback
-  const handlePlayPause = (track: SpotifyTrack) => {
+  // Handle audio playback with enhanced controls
+  const handlePlayPause = async (track: SpotifyTrack) => {
     if (!track.preview_url) return
 
     if (playingTrackId === track.id) {
       // Pause current track
       audioRef.current?.pause()
       setPlayingTrackId(null)
-    } else {
-      // Play new track
-      if (audioRef.current) {
-        audioRef.current.pause()
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current)
+        progressInterval.current = null
       }
-      
-      audioRef.current = new Audio(track.preview_url)
-      audioRef.current.volume = 0.5
-      
-      audioRef.current.play().catch(error => {
+    } else {
+      try {
+        setIsBuffering(true)
+        
+        // Stop any currently playing track
+        if (audioRef.current) {
+          audioRef.current.pause()
+          if (progressInterval.current) {
+            clearInterval(progressInterval.current)
+            progressInterval.current = null
+          }
+        }
+        
+        // Create new audio instance
+        audioRef.current = new Audio(track.preview_url)
+        audioRef.current.volume = volume
+        audioRef.current.preload = 'auto'
+        
+        // Audio event listeners
+        audioRef.current.addEventListener('loadedmetadata', () => {
+          setAudioDuration(audioRef.current?.duration || 0)
+          setIsBuffering(false)
+        })
+        
+        audioRef.current.addEventListener('canplay', () => {
+          setIsBuffering(false)
+        })
+        
+        audioRef.current.addEventListener('ended', () => {
+          setPlayingTrackId(null)
+          setAudioProgress(0)
+          if (progressInterval.current) {
+            clearInterval(progressInterval.current)
+            progressInterval.current = null
+          }
+        })
+        
+        audioRef.current.addEventListener('error', (error) => {
+          console.error('Audio playback error:', error)
+          setIsBuffering(false)
+          setPlayingTrackId(null)
+        })
+        
+        // Start playback
+        await audioRef.current.play()
+        setPlayingTrackId(track.id)
+        setAudioProgress(0)
+        
+        // Start progress tracking
+        progressInterval.current = setInterval(() => {
+          if (audioRef.current && !audioRef.current.paused) {
+            setAudioProgress(audioRef.current.currentTime)
+          }
+        }, 100)
+        
+      } catch (error) {
         console.error('Error playing audio:', error)
-      })
-
-      audioRef.current.addEventListener('ended', () => {
+        setIsBuffering(false)
         setPlayingTrackId(null)
-      })
+      }
+    }
+  }
 
-      setPlayingTrackId(track.id)
+  // Volume control
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume)
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume
+    }
+  }
+
+  // Seek functionality
+  const handleSeek = (seekTime: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = seekTime
+      setAudioProgress(seekTime)
     }
   }
 
@@ -47,6 +114,9 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
   useEffect(() => {
     return () => {
       audioRef.current?.pause()
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current)
+      }
     }
   }, [])
 
@@ -54,6 +124,12 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
   useEffect(() => {
     audioRef.current?.pause()
     setPlayingTrackId(null)
+    setAudioProgress(0)
+    setIsBuffering(false)
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current)
+      progressInterval.current = null
+    }
   }, [tracks])
 
   const containerVariants = {
@@ -80,7 +156,7 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-4xl mx-auto space-y-6 relative">
       {/* Modern Header */}
       <AnimatePresence mode="wait">
         {moodDescription && !isLoading && tracks.length > 0 && (
@@ -169,7 +245,11 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
                 <ModernMusicCard
                   track={track}
                   isPlaying={playingTrackId === track.id}
+                  isBuffering={isBuffering && playingTrackId === track.id}
+                  audioProgress={playingTrackId === track.id ? audioProgress : 0}
+                  audioDuration={playingTrackId === track.id ? audioDuration : 0}
                   onPlay={() => handlePlayPause(track)}
+                  onSeek={handleSeek}
                   index={index}
                 />
               </motion.div>
@@ -224,6 +304,85 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Global Audio Control Panel */}
+      <AnimatePresence>
+        {playingTrackId && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <div className="glass-card p-4 flex items-center gap-4 min-w-[300px] max-w-[500px]">
+              {/* Currently Playing Track Info */}
+              {(() => {
+                const currentTrack = tracks.find(t => t.id === playingTrackId)
+                return currentTrack ? (
+                  <>
+                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                      {currentTrack.album?.images?.[0] ? (
+                        <img
+                          src={currentTrack.album.images[0].url}
+                          alt={currentTrack.album.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+                          <span className="text-lg">🎵</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold truncate">
+                        {currentTrack.name}
+                      </div>
+                      <div className="text-xs text-white/60 truncate">
+                        {currentTrack.artists?.map(artist => artist.name).join(', ')}
+                      </div>
+                    </div>
+                    
+                    {/* Global Volume Control */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/60">🔊</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={volume}
+                        onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                        className="w-16 h-1 bg-white/20 rounded-full appearance-none cursor-pointer
+                                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 
+                                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-400"
+                      />
+                      <span className="text-xs text-white/60 w-6">{Math.round(volume * 100)}</span>
+                    </div>
+                    
+                    {/* Close Button */}
+                    <motion.button
+                      onClick={() => {
+                        audioRef.current?.pause()
+                        setPlayingTrackId(null)
+                        if (progressInterval.current) {
+                          clearInterval(progressInterval.current)
+                          progressInterval.current = null
+                        }
+                      }}
+                      className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <span className="text-xs">×</span>
+                    </motion.button>
+                  </>
+                ) : null
+              })()}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -232,12 +391,20 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
 function ModernMusicCard({ 
   track, 
   isPlaying, 
+  isBuffering,
+  audioProgress,
+  audioDuration,
   onPlay, 
+  onSeek,
   index 
 }: { 
   track: SpotifyTrack
   isPlaying: boolean
+  isBuffering: boolean
+  audioProgress: number
+  audioDuration: number
   onPlay: () => void
+  onSeek: (time: number) => void
   index: number
 }) {
   // Defensive checks
@@ -250,7 +417,9 @@ function ModernMusicCard({
   
   return (
     <motion.div
-      className="track-card group relative overflow-hidden"
+      className={`track-card group relative overflow-hidden transition-all duration-300 ${
+        isPlaying ? 'ring-2 ring-purple-400/50 bg-purple-500/5' : ''
+      }`}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
     >
@@ -308,33 +477,80 @@ function ModernMusicCard({
           {Math.floor(track.duration_ms / 60000)}:{String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}
         </div>
 
-        {/* Play Button */}
-        <motion.button
-          onClick={onPlay}
-          disabled={!hasPreview}
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-            hasPreview 
-              ? 'bg-purple-500 hover:bg-purple-400 cursor-pointer' 
-              : 'bg-gray-600 opacity-50 cursor-not-allowed'
-          }`}
-          whileHover={hasPreview ? { scale: 1.1 } : {}}
-          whileTap={hasPreview ? { scale: 0.95 } : {}}
-        >
-          {hasPreview ? (
-            <>
-              {isPlaying ? (
-                <div className="flex gap-0.5">
-                  <div className="w-0.5 h-3 bg-white rounded-full animate-pulse" />
-                  <div className="w-0.5 h-3 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                </div>
-              ) : (
-                <div className="w-0 h-0 border-l-[6px] border-l-white border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5" />
-              )}
-            </>
-          ) : (
-            <span className="text-xs">—</span>
+        {/* Audio Controls */}
+        <div className="flex items-center gap-2">
+          {/* Play/Pause Button */}
+          <motion.button
+            onClick={onPlay}
+            disabled={!hasPreview || isBuffering}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 relative ${
+              hasPreview 
+                ? 'bg-purple-500 hover:bg-purple-400 cursor-pointer' 
+                : 'bg-gray-600 opacity-50 cursor-not-allowed'
+            }`}
+            whileHover={hasPreview && !isBuffering ? { scale: 1.05 } : {}}
+            whileTap={hasPreview && !isBuffering ? { scale: 0.95 } : {}}
+            title={hasPreview ? (isPlaying ? 'Pause preview' : 'Play preview') : 'No preview available'}
+          >
+            {isBuffering ? (
+              <motion.div
+                className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+            ) : hasPreview ? (
+              <>
+                {isPlaying ? (
+                  <div className="flex gap-0.5">
+                    <div className="w-1 h-3 bg-white rounded-full" />
+                    <div className="w-1 h-3 bg-white rounded-full" />
+                  </div>
+                ) : (
+                  <div className="w-0 h-0 border-l-[6px] border-l-white border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5" />
+                )}
+              </>
+            ) : (
+              <span className="text-xs">—</span>
+            )}
+          </motion.button>
+
+          {/* Progress Bar & Time (only show when playing/has played) */}
+          {isPlaying && audioDuration > 0 && (
+            <div className="flex items-center gap-2 min-w-[120px]">
+              {/* Current Time */}
+              <span className="text-xs font-mono text-white/60 w-8">
+                {Math.floor(audioProgress / 60)}:{String(Math.floor(audioProgress % 60)).padStart(2, '0')}
+              </span>
+              
+              {/* Progress Bar */}
+              <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden cursor-pointer group"
+                   onClick={(e) => {
+                     const rect = e.currentTarget.getBoundingClientRect()
+                     const x = e.clientX - rect.left
+                     const percentage = x / rect.width
+                     const seekTime = percentage * audioDuration
+                     onSeek(seekTime)
+                   }}
+              >
+                <motion.div
+                  className="h-full bg-purple-400 rounded-full relative"
+                  style={{ width: `${(audioProgress / audioDuration) * 100}%` }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(audioProgress / audioDuration) * 100}%` }}
+                  transition={{ duration: 0.1 }}
+                >
+                  {/* Progress dot */}
+                  <div className="absolute right-0 top-1/2 w-2 h-2 bg-white rounded-full transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.div>
+              </div>
+              
+              {/* Total Duration */}
+              <span className="text-xs font-mono text-white/60 w-8">
+                {Math.floor(audioDuration / 60)}:{String(Math.floor(audioDuration % 60)).padStart(2, '0')}
+              </span>
+            </div>
           )}
-        </motion.button>
+        </div>
 
         {/* External Link */}
         <motion.a

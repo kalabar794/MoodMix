@@ -52,7 +52,7 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
   const token = await getAccessToken()
 
   try {
-    // Use search API with mood-based queries since recommendations API is not accessible
+    // Use search API with mood-based queries optimized for preview availability
     const moodQueries = getMoodSearchQueries(params)
     const allTracks: SpotifyTrack[] = []
 
@@ -65,12 +65,134 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
           params: {
             q: query,
             type: 'track',
-            limit: Math.ceil(params.limit / moodQueries.length),
-            market: 'US', // Add market for better results
+            limit: 50, // Request more tracks to filter for previews
+            market: 'US',
           },
         })
 
-        const tracks: SpotifyTrack[] = response.data.tracks.items.map((track: any) => ({
+        const tracks: SpotifyTrack[] = response.data.tracks.items
+          .map((track: any) => ({
+            id: track.id,
+            name: track.name,
+            artists: track.artists.map((a: any) => ({ id: a.id, name: a.name })),
+            album: {
+              id: track.album.id,
+              name: track.album.name,
+              images: track.album.images || []
+            },
+            preview_url: track.preview_url,
+            external_urls: track.external_urls,
+            duration_ms: track.duration_ms,
+            popularity: track.popularity || 0
+          }))
+          .filter((track: SpotifyTrack) => track.preview_url !== null) // Only include tracks with previews
+
+        allTracks.push(...tracks)
+      } catch (queryError) {
+        console.error(`Error with query "${query}":`, queryError)
+        // Continue with other queries
+      }
+    }
+
+    // Sort by popularity to get better quality tracks first
+    const sortedTracks = allTracks.sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+
+    // Remove duplicates and limit results
+    const uniqueTracks = sortedTracks.filter((track, index, self) => 
+      index === self.findIndex(t => t.id === track.id)
+    )
+    
+    // If we don't have enough tracks with previews, try fallback searches
+    if (uniqueTracks.length < params.limit) {
+      const fallbackTracks = await searchFallbackTracks(token, params.limit - uniqueTracks.length)
+      uniqueTracks.push(...fallbackTracks.filter(track => 
+        !uniqueTracks.some(existing => existing.id === track.id)
+      ))
+    }
+    
+    return uniqueTracks.slice(0, params.limit)
+  } catch (error) {
+    console.error('Error searching Spotify tracks:', error)
+    throw new Error('Failed to search tracks')
+  }
+}
+
+// Generate search queries based on mood parameters - optimized for preview availability
+function getMoodSearchQueries(params: MoodMusicParams): string[] {
+  const queries: string[] = []
+  
+  // High-energy, positive moods
+  if (params.valence > 0.7 && params.energy > 0.7) {
+    queries.push(
+      'artist:Dua Lipa OR artist:Bruno Mars OR artist:"The Weeknd" OR artist:Ariana Grande',
+      'artist:Taylor Swift OR artist:Ed Sheeran OR artist:Billie Eilish',
+      'artist:Doja Cat OR artist:Post Malone OR artist:Olivia Rodrigo'
+    )
+  }
+  // Sad/emotional moods
+  else if (params.valence < 0.3) {
+    queries.push(
+      'artist:Adele OR artist:"Sam Smith" OR artist:"Lana Del Rey"',
+      'artist:"Billie Eilish" OR artist:Hozier OR artist:"Lewis Capaldi"',
+      'artist:"The Weeknd" OR artist:"Lorde" OR artist:"Bon Iver"'
+    )
+  }
+  // Chill/relaxed moods
+  else if (params.energy < 0.3) {
+    queries.push(
+      'artist:"Billie Eilish" OR artist:Lorde OR artist:"The 1975"',
+      'artist:"Arctic Monkeys" OR artist:"Tame Impala" OR artist:Hozier',
+      'artist:"Mac Miller" OR artist:"Frank Ocean" OR artist:"Rex Orange County"'
+    )
+  }
+  // High energy but moderate valence
+  else if (params.energy > 0.7) {
+    queries.push(
+      'artist:"The Weeknd" OR artist:"Dua Lipa" OR artist:"Calvin Harris"',
+      'artist:"David Guetta" OR artist:"Martin Garrix" OR artist:"Swedish House Mafia"',
+      'artist:"Zedd" OR artist:"Marshmello" OR artist:"Tiësto"'
+    )
+  }
+  // Default popular artists with high preview availability
+  else {
+    queries.push(
+      'artist:"Taylor Swift" OR artist:"Ed Sheeran" OR artist:"Bruno Mars"',
+      'artist:"Ariana Grande" OR artist:"Justin Bieber" OR artist:"Dua Lipa"',
+      'artist:"The Weeknd" OR artist:"Post Malone" OR artist:"Billie Eilish"'
+    )
+  }
+  
+  return queries.slice(0, 3)
+}
+
+// Fallback search for tracks with previews when primary search doesn't yield enough
+async function searchFallbackTracks(token: string, needed: number): Promise<SpotifyTrack[]> {
+  const fallbackQueries = [
+    'year:2020-2024 genre:pop',
+    'year:2018-2024 genre:hip-hop',
+    'year:2019-2024 genre:electronic',
+    'artist:"Taylor Swift" OR artist:"Ed Sheeran" OR artist:"Ariana Grande"',
+    'track:"blinding lights" OR track:"shape of you" OR track:"bad guy"'
+  ]
+  
+  const tracks: SpotifyTrack[] = []
+  
+  for (const query of fallbackQueries) {
+    if (tracks.length >= needed) break
+    
+    try {
+      const response = await axios.get(`${SPOTIFY_API_BASE}/search`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        params: {
+          q: query,
+          type: 'track',
+          limit: 50,
+          market: 'US',
+        },
+      })
+
+      const queryTracks = response.data.tracks.items
+        .map((track: any) => ({
           id: track.id,
           name: track.name,
           artists: track.artists.map((a: any) => ({ id: a.id, name: a.name })),
@@ -82,58 +204,17 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
           preview_url: track.preview_url,
           external_urls: track.external_urls,
           duration_ms: track.duration_ms,
+          popularity: track.popularity || 0
         }))
+        .filter((track: any) => track.preview_url !== null)
 
-        allTracks.push(...tracks) // Include all tracks, not just ones with previews
-      } catch (queryError) {
-        console.error(`Error with query "${query}":`, queryError)
-        // Continue with other queries
-      }
+      tracks.push(...queryTracks)
+    } catch (error) {
+      console.error('Fallback search error:', error)
     }
-
-    // Remove duplicates and limit results
-    const uniqueTracks = allTracks.filter((track, index, self) => 
-      index === self.findIndex(t => t.id === track.id)
-    )
-    
-    return uniqueTracks.slice(0, params.limit)
-  } catch (error) {
-    console.error('Error searching Spotify tracks:', error)
-    throw new Error('Failed to search tracks')
-  }
-}
-
-// Generate search queries based on mood parameters
-function getMoodSearchQueries(params: MoodMusicParams): string[] {
-  const queries: string[] = []
-  
-  // Start with broader, more successful queries
-  // Add mood-based keywords based on valence and energy
-  if (params.valence > 0.7) {
-    queries.push('happy', 'upbeat')
-  } else if (params.valence < 0.3) {
-    queries.push('sad', 'emotional')
-  } else {
-    queries.push('popular')
   }
   
-  if (params.energy > 0.7) {
-    queries.push('energetic', 'dance')
-  } else if (params.energy < 0.3) {
-    queries.push('chill', 'relaxing')
-  }
-  
-  // Add main genre (first one) as a separate query
-  if (params.genres.length > 0) {
-    queries.push(params.genres[0])
-  }
-  
-  // Fallback queries if no specific ones were added
-  if (queries.length === 0) {
-    queries.push('popular', 'top hits', 'music')
-  }
-  
-  return queries.slice(0, 3) // Limit to 3 queries to avoid rate limiting
+  return tracks.slice(0, needed)
 }
 
 // Get available genre seeds from Spotify (fallback to hardcoded list since API not accessible)

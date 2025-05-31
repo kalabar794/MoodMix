@@ -18,8 +18,13 @@ async function getAccessToken(): Promise<string> {
   const clientId = process.env.SPOTIFY_CLIENT_ID
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
 
+  console.log('🔑 Checking Spotify credentials...')
+  console.log('Client ID exists:', !!clientId)
+  console.log('Client Secret exists:', !!clientSecret)
+
   if (!clientId || !clientSecret) {
-    throw new Error('Missing Spotify credentials')
+    console.error('❌ Missing Spotify credentials in environment variables')
+    throw new Error('Missing Spotify credentials - check SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in environment variables')
   }
 
   try {

@@ -32,8 +32,8 @@ class YouTubeMusicIntegration {
   // Main search function - finds music videos for Spotify tracks
   async searchMusicVideo(trackName: string, artistName: string): Promise<YouTubeSearchResponse> {
     if (!this.apiKey) {
-      console.warn('YouTube API key not available, using fallback search')
-      return this.fallbackSearch(trackName, artistName)
+      console.warn('YouTube API key not available')
+      return this.quotaExceededResponse(trackName, artistName)
     }
 
     try {
@@ -69,10 +69,10 @@ class YouTubeMusicIntegration {
       // Remove duplicates and sort by relevance
       const uniqueVideos = this.deduplicateAndRank(allVideos, trackName, artistName)
 
-      // If no embeddable videos found, fall back to search
+      // If no embeddable videos found, return empty result (hide YouTube button)
       if (uniqueVideos.length === 0) {
-        console.log(`⚠️ No embeddable videos found for "${trackName}" by "${artistName}". Using search fallback.`)
-        return this.fallbackSearch(trackName, artistName)
+        console.log(`⚠️ No embeddable videos found for "${trackName}" by "${artistName}". Hiding YouTube button.`)
+        return this.quotaExceededResponse(trackName, artistName)
       }
 
       return {
@@ -83,7 +83,14 @@ class YouTubeMusicIntegration {
       }
     } catch (error) {
       console.error('YouTube search error:', error)
-      return this.fallbackSearch(trackName, artistName)
+      
+      // Check if this is a quota exceeded error
+      if (error instanceof Error && (error.message.includes('quota') || error.message.includes('403'))) {
+        console.log(`💔 YouTube API quota exceeded for "${trackName}" by "${artistName}". Hiding YouTube button.`)
+        return this.quotaExceededResponse(trackName, artistName)
+      }
+      
+      return this.quotaExceededResponse(trackName, artistName)
     }
   }
 
@@ -256,31 +263,15 @@ class YouTubeMusicIntegration {
     return 0
   }
 
-  // Fallback when API key is not available - provides search functionality
-  private async fallbackSearch(trackName: string, artistName: string): Promise<YouTubeSearchResponse> {
-    console.log(`⚠️ YouTube API key not available for "${trackName}" by "${artistName}" - providing search fallback`)
-    
-    // Generate a smart search query
-    const searchQuery = `${trackName} ${artistName} official music video`
-    const encodedQuery = encodeURIComponent(searchQuery)
-    
-    // Create a fallback video result that represents a search action
-    const fallbackVideo: YouTubeVideoResult = {
-      id: `search-${Date.now()}`,
-      title: `Search for "${trackName}" by ${artistName}`,
-      channelTitle: 'YouTube Search',
-      thumbnail: '', // No thumbnail for search
-      duration: '0:00',
-      publishedAt: new Date().toISOString(),
-      embedUrl: '', // No embed for search
-      watchUrl: `https://www.youtube.com/results?search_query=${encodedQuery}`
-    }
+  // Response when quota exceeded or no API key - hides YouTube buttons
+  private async quotaExceededResponse(trackName: string, artistName: string): Promise<YouTubeSearchResponse> {
+    console.log(`💔 YouTube unavailable for "${trackName}" by "${artistName}" - hiding YouTube button`)
     
     return {
-      success: true, // Allow button to show
-      videos: [fallbackVideo],
-      totalResults: 1,
-      searchQuery
+      success: false, // This will hide the YouTube button
+      videos: [],
+      totalResults: 0,
+      searchQuery: `${trackName} ${artistName}`
     }
   }
 

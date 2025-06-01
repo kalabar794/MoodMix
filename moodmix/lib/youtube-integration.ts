@@ -263,31 +263,46 @@ class YouTubeMusicIntegration {
     return 0
   }
 
-  // Fallback that provides working YouTube functionality even with quota limits
+  // Fallback that provides working YouTube functionality using video database
   private async createWorkingYouTubeResponse(trackName: string, artistName: string): Promise<YouTubeSearchResponse> {
-    console.log(`🎬 Creating working YouTube response for "${trackName}" by "${artistName}"`)
+    console.log(`🎬 Looking up video for "${trackName}" by "${artistName}" in database`)
     
-    // Create a working YouTube video result using standard YouTube URL patterns
-    const searchQuery = `${trackName} ${artistName} official music video`
-    const encodedQuery = encodeURIComponent(searchQuery)
+    // Import the video database
+    const { findMusicVideo } = await import('./youtube-video-database')
     
-    // Generate a likely video ID or use search-based approach
-    const workingVideo: YouTubeVideoResult = {
-      id: `yt-${Date.now()}`,
-      title: `${trackName} - ${artistName}`,
-      channelTitle: artistName,
-      thumbnail: '', 
-      duration: '3:30',
-      publishedAt: new Date().toISOString(),
-      embedUrl: `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(searchQuery)}&autoplay=1`,
-      watchUrl: `https://www.youtube.com/results?search_query=${encodedQuery}`
-    }
+    // Try to find a matching video in our database
+    const dbVideo = findMusicVideo(trackName, artistName)
     
-    return {
-      success: true, // Show red YouTube button
-      videos: [workingVideo],
-      totalResults: 1,
-      searchQuery
+    if (dbVideo) {
+      console.log(`✅ Found matching video: ${dbVideo.title}`)
+      
+      const workingVideo: YouTubeVideoResult = {
+        id: dbVideo.videoId,
+        title: dbVideo.title,
+        channelTitle: dbVideo.channelTitle,
+        thumbnail: `https://img.youtube.com/vi/${dbVideo.videoId}/maxresdefault.jpg`,
+        duration: dbVideo.duration,
+        publishedAt: new Date().toISOString(),
+        embedUrl: `https://www.youtube-nocookie.com/embed/${dbVideo.videoId}?autoplay=1&rel=0&modestbranding=1`,
+        watchUrl: `https://www.youtube.com/watch?v=${dbVideo.videoId}`
+      }
+      
+      return {
+        success: true,
+        videos: [workingVideo],
+        totalResults: 1,
+        searchQuery: `${trackName} ${artistName}`
+      }
+    } else {
+      console.log(`⚠️ No video found for "${trackName}" by "${artistName}" in database`)
+      
+      // Return no video (will hide YouTube button for this track)
+      return {
+        success: false,
+        videos: [],
+        totalResults: 0,
+        searchQuery: `${trackName} ${artistName}`
+      }
     }
   }
 

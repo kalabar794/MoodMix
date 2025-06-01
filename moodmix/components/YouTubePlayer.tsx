@@ -236,7 +236,15 @@ export function YouTubeButton({ video, isLoading, onPlay, disabled = false }: Yo
   }
 
   if (!video || disabled) {
-    return null // Hide button completely when no video available
+    return (
+      <motion.button
+        disabled
+        className="w-10 h-10 rounded-full bg-gray-600 opacity-50 flex items-center justify-center cursor-not-allowed"
+        title="Video unavailable"
+      >
+        <span className="text-white text-xs">—</span>
+      </motion.button>
+    )
   }
 
   return (

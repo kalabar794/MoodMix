@@ -12,7 +12,13 @@ export function useMusic() {
     setError(null)
 
     try {
-      const response = await fetch('/api/mood-to-music', {
+      // Use debug API if in development and debug mode is enabled
+      const isDebugMode = process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.location.search.includes('debug=true')
+      const apiEndpoint = isDebugMode ? '/api/mood-to-music-debug' : '/api/mood-to-music'
+      
+      console.log('🎵 Fetching music from:', apiEndpoint)
+
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -22,14 +28,19 @@ export function useMusic() {
 
       const data = await response.json()
 
-      if (data.success) {
+      if (data.tracks && data.tracks.length > 0) {
+        setTracks(data.tracks)
+        setMoodDescription(data.description || `Perfect tracks for your ${mood.primary} mood`)
+        console.log('🎵 Successfully loaded', data.tracks.length, 'tracks')
+      } else if (data.success) {
         setTracks(data.tracks)
         setMoodDescription(data.description)
       } else {
         setError(data.message || 'Failed to fetch music')
         setTracks([])
       }
-    } catch {
+    } catch (error) {
+      console.error('Music fetch error:', error)
       setError('Network error. Please try again.')
       setTracks([])
     } finally {

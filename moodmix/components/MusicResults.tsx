@@ -117,6 +117,11 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
   }
 
 
+  // Helper function to create consistent keys for YouTube search
+  const createSearchKey = (trackName: string, artistName: string) => {
+    return `${trackName}-${artistName}`
+  }
+
   // Initialize YouTube API and search for videos
   useEffect(() => {
     youtubeAPI.current = new YouTubeMusicIntegration()
@@ -124,7 +129,7 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
     const performSearch = async () => {
       if (!youtubeAPI.current || tracks.length === 0) return
 
-      console.log('🎬 Searching YouTube videos for tracks...')
+      console.log('🎬 Searching YouTube videos for', tracks.length, 'tracks...')
       
       // Initialize loading states
       const loadingStates: Record<string, boolean> = {}
@@ -134,20 +139,25 @@ export default function MusicResults({ tracks, isLoading, moodDescription }: Mus
       setYoutubeLoading(loadingStates)
 
       try {
-        // Search for videos in batches
-        const searchData = tracks.map(track => ({
-          name: track.name,
-          artist: track.artists[0]?.name || 'Unknown Artist'
-        }))
+        // Search for videos in batches - use consistent key generation
+        const searchData = tracks.map(track => {
+          const artistName = track.artists[0]?.name || 'Unknown Artist'
+          return {
+            name: track.name,
+            artist: artistName
+          }
+        })
 
         const results = await youtubeAPI.current.searchMultipleTracks(searchData)
         
-        // Map results back to track IDs
+        // Map results back to track IDs using the same key format
         const videoMap: Record<string, YouTubeVideoResult | null> = {}
         tracks.forEach(track => {
-          const key = `${track.name}-${track.artists[0]?.name || 'Unknown Artist'}`
+          const artistName = track.artists[0]?.name || 'Unknown Artist'
+          const key = createSearchKey(track.name, artistName)
           const searchResult = results[key]
-          videoMap[track.id] = searchResult?.videos?.[0] || null
+          const video = searchResult?.videos?.[0] || null
+          videoMap[track.id] = video
           
           if (searchResult?.success && searchResult.videos.length > 0) {
             console.log(`✅ Found YouTube video for "${track.name}":`, searchResult.videos[0].title)

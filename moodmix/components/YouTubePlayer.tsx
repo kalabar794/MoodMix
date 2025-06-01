@@ -42,7 +42,9 @@ export default function YouTubePlayer({
 
   if (!video) return null
 
-  const embedUrl = `${video.embedUrl}&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
+  // Check if this is a fallback search video (no embedUrl)
+  const isSearchFallback = !video.embedUrl || video.embedUrl === ''
+  const embedUrl = isSearchFallback ? '' : `${video.embedUrl}&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
 
   return (
     <AnimatePresence>
@@ -87,50 +89,75 @@ export default function YouTubePlayer({
 
             {/* Video Player */}
             <div className="relative aspect-video bg-black">
-              {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.div
-                    className="w-12 h-12 border-4 border-white border-t-transparent rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  />
-                </div>
-              )}
-
-              {hasError && (
+              {isSearchFallback ? (
+                // Show search interface when no embed is available
                 <div className="absolute inset-0 flex items-center justify-center text-center p-8">
                   <div>
-                    <div className="text-4xl mb-4">⚠️</div>
+                    <div className="text-6xl mb-6">🔍</div>
                     <h3 className="text-white text-lg font-semibold mb-2">
-                      Video Unavailable
+                      Search YouTube
                     </h3>
-                    <p className="text-gray-400 mb-4">
-                      This video cannot be played in embedded mode.
+                    <p className="text-gray-400 mb-6">
+                      Find the official music video for this track
                     </p>
                     <motion.button
                       onClick={() => window.open(video.watchUrl, '_blank')}
-                      className="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg transition-colors"
+                      className="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-lg transition-colors font-semibold text-lg"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      Watch on YouTube
+                      Search on YouTube
                     </motion.button>
                   </div>
                 </div>
-              )}
+              ) : (
+                <>
+                  {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <motion.div
+                        className="w-12 h-12 border-4 border-white border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                    </div>
+                  )}
 
-              {!hasError && (
-                <iframe
-                  ref={iframeRef}
-                  src={embedUrl}
-                  title={video.title}
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  onLoad={handleIframeLoad}
-                  onError={handleIframeError}
-                />
+                  {hasError && (
+                    <div className="absolute inset-0 flex items-center justify-center text-center p-8">
+                      <div>
+                        <div className="text-4xl mb-4">⚠️</div>
+                        <h3 className="text-white text-lg font-semibold mb-2">
+                          Video Unavailable
+                        </h3>
+                        <p className="text-gray-400 mb-4">
+                          This video cannot be played in embedded mode.
+                        </p>
+                        <motion.button
+                          onClick={() => window.open(video.watchUrl, '_blank')}
+                          className="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg transition-colors"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Watch on YouTube
+                        </motion.button>
+                      </div>
+                    </div>
+                  )}
+
+                  {!hasError && embedUrl && (
+                    <iframe
+                      ref={iframeRef}
+                      src={embedUrl}
+                      title={video.title}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      onLoad={handleIframeLoad}
+                      onError={handleIframeError}
+                    />
+                  )}
+                </>
               )}
             </div>
 

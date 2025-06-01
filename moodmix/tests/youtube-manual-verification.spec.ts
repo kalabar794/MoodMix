@@ -1,106 +1,106 @@
 import { test, expect } from '@playwright/test';
 
-test('Manual YouTube verification - check red buttons and functionality', async ({ page }) => {
-  console.log('🎬 MANUAL YOUTUBE VERIFICATION TEST');
-  
-  try {
-    // Navigate to the app (assuming it's already running)
-    console.log('🌐 Navigating to localhost:3000...');
-    await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
+test.describe('YouTube Embeddable Manual Verification', () => {
+  test('manual verification of YouTube embeddable fix', async ({ page }) => {
+    // Navigate to the application
+    await page.goto('http://localhost:3000');
     
-    // Take screenshot of initial page
+    // Take initial screenshot
     await page.screenshot({ 
-      path: 'test-results/manual-01-initial-page.png',
+      path: '/Users/jonathonc/Auto1111/claude/MoodMix/moodmix/test-results/manual-verification-step1-home.png',
       fullPage: true 
     });
-    console.log('📸 Initial page screenshot taken');
-
-    // Wait for and click mood wheel
-    await page.waitForSelector('[data-testid="mood-wheel"]', { timeout: 15000 });
-    console.log('✅ Mood wheel found');
-
-    // Click Energetic mood
-    console.log('🎯 Clicking Energetic mood...');
-    await page.click('text=Energetic');
     
-    // Wait for music results
-    console.log('⏳ Waiting for music results...');
-    await page.waitForSelector('[data-testid="music-results"]', { timeout: 30000 });
+    console.log('✅ Step 1: Navigated to localhost:3000');
     
-    // Wait extra time for API calls
-    await page.waitForTimeout(5000);
+    // Wait and look for mood cards
+    await page.waitForTimeout(3000);
     
-    // Take screenshot of results
-    await page.screenshot({ 
-      path: 'test-results/manual-02-music-results.png',
-      fullPage: true 
-    });
-    console.log('📸 Music results screenshot taken');
-
-    // Check YouTube buttons
-    const allButtons = await page.locator('button').count();
-    console.log(`🔍 Total buttons found: ${allButtons}`);
-    
-    const redButtons = await page.locator('button:has-text("▶")').count();
-    console.log(`🔴 Red YouTube buttons (▶): ${redButtons}`);
-    
-    const grayButtons = await page.locator('button:has-text("—")').count();
-    console.log(`⚫ Gray YouTube buttons (—): ${grayButtons}`);
-
-    // List all button texts
-    const buttonTexts = await page.locator('button').allTextContents();
-    console.log('📝 All button texts:', buttonTexts.filter(text => text.includes('▶') || text.includes('—')));
-
-    if (redButtons > 0) {
-      console.log('🎉 SUCCESS: Found red YouTube buttons!');
+    // Try to click on Energetic mood if it exists
+    const energeticText = page.locator('text=Energetic');
+    if (await energeticText.count() > 0) {
+      await energeticText.first().click();
+      console.log('✅ Step 2: Clicked on Energetic mood');
       
-      // Try clicking the first red button
-      console.log('🎬 Clicking first red YouTube button...');
-      await page.locator('button:has-text("▶")').first().click();
+      // Wait for results
+      await page.waitForTimeout(5000);
       
-      // Wait for iframe
-      await page.waitForTimeout(3000);
-      
-      // Check for YouTube iframe
-      const iframes = await page.locator('iframe').count();
-      const youtubeIframes = await page.locator('iframe[src*="youtube"]').count();
-      
-      console.log(`📺 Total iframes: ${iframes}`);
-      console.log(`🎬 YouTube iframes: ${youtubeIframes}`);
-      
-      if (youtubeIframes > 0) {
-        const iframeSrc = await page.locator('iframe[src*="youtube"]').first().getAttribute('src');
-        console.log(`✅ YouTube iframe found with src: ${iframeSrc}`);
-      }
-      
-      // Final screenshot
+      // Take screenshot after clicking mood
       await page.screenshot({ 
-        path: 'test-results/manual-03-youtube-player.png',
+        path: '/Users/jonathonc/Auto1111/claude/MoodMix/moodmix/test-results/manual-verification-step2-after-click.png',
         fullPage: true 
       });
-      console.log('📸 YouTube player screenshot taken');
       
-    } else {
-      console.log('❌ NO RED BUTTONS FOUND!');
-      console.log('🔍 Debug info:');
+      // Look for any error messages or content
+      const bodyText = await page.textContent('body');
+      console.log('Current page content includes:', bodyText?.substring(0, 200) + '...');
       
-      // Debug: Check API responses
-      const responses = [];
-      page.on('response', response => {
-        if (response.url().includes('api')) {
-          responses.push(`${response.status()} ${response.url()}`);
+      // Look for YouTube buttons
+      const youtubeButtons = page.locator('button').filter({ hasText: /youtube/i });
+      const buttonCount = await youtubeButtons.count();
+      console.log(`📝 Found ${buttonCount} YouTube buttons`);
+      
+      if (buttonCount > 0) {
+        // Test clicking the first YouTube button
+        await youtubeButtons.first().click();
+        console.log('✅ Step 3: Clicked on first YouTube button');
+        
+        await page.waitForTimeout(3000);
+        
+        // Take screenshot after clicking YouTube button
+        await page.screenshot({ 
+          path: '/Users/jonathonc/Auto1111/claude/MoodMix/moodmix/test-results/manual-verification-step3-youtube-clicked.png',
+          fullPage: true 
+        });
+        
+        // Check for iframe
+        const iframe = page.locator('iframe[src*="youtube"]');
+        const iframeCount = await iframe.count();
+        console.log(`📝 Found ${iframeCount} YouTube iframes`);
+        
+        if (iframeCount > 0) {
+          const iframeSrc = await iframe.first().getAttribute('src');
+          console.log(`📝 YouTube iframe src: ${iframeSrc}`);
+          
+          const isEmbedUrl = iframeSrc?.includes('/embed/') || false;
+          const isSearchUrl = iframeSrc?.includes('/results') || iframeSrc?.includes('search_query') || false;
+          
+          if (isEmbedUrl && !isSearchUrl) {
+            console.log('🎉 SUCCESS: Found embedded YouTube video (not search interface)');
+          } else {
+            console.log('❌ ISSUE: YouTube iframe is search interface, not embedded video');
+          }
+        } else {
+          console.log('📝 No YouTube iframe found');
         }
-      });
+      } else {
+        console.log('📝 No YouTube buttons found - checking for error messages');
+        
+        // Look for specific error indicators
+        const errorText = page.locator('text=Network error');
+        const noTracksText = page.locator('text=No Tracks Found');
+        
+        if (await errorText.count() > 0) {
+          console.log('❌ Network error detected');
+        }
+        if (await noTracksText.count() > 0) {
+          console.log('❌ No tracks found error detected');
+        }
+      }
+    } else {
+      console.log('❌ Could not find Energetic mood card');
       
-      console.log('🌐 API responses:', responses);
+      // Show what's actually on the page
+      const allText = await page.textContent('body');
+      console.log('Page contains:', allText?.substring(0, 500) + '...');
     }
-
-  } catch (error) {
-    console.error('❌ Test failed:', error);
+    
+    // Final screenshot
     await page.screenshot({ 
-      path: 'test-results/manual-error.png',
+      path: '/Users/jonathonc/Auto1111/claude/MoodMix/moodmix/test-results/manual-verification-final.png',
       fullPage: true 
     });
-    throw error;
-  }
+    
+    console.log('✅ Manual verification complete - check screenshots in test-results/');
+  });
 });

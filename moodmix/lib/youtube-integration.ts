@@ -9,6 +9,7 @@ interface YouTubeVideoResult {
   duration: string
   publishedAt: string
   viewCount?: string
+  embeddable?: boolean
   embedUrl: string
   watchUrl: string
 }
@@ -44,12 +45,35 @@ class YouTubeMusicIntegration {
         const videos = await this.performSearch(query)
         allVideos.push(...videos)
         
-        // If we found good results, no need to continue
-        if (videos.length >= 3) break
+        // Continue searching until we have at least 1 embeddable video
+        if (videos.length >= 1) break
+      }
+      
+      // If we still don't have embeddable videos, try broader searches
+      if (allVideos.length === 0) {
+        console.log(`🔍 No embeddable videos found for "${trackName}" by "${artistName}". Trying broader search...`)
+        const broadQueries = [
+          `${trackName} ${artistName}`,
+          `${artistName} ${trackName}`,
+          `${trackName} music video`,
+          `${artistName} official`
+        ]
+        
+        for (const query of broadQueries) {
+          const videos = await this.performSearch(query)
+          allVideos.push(...videos)
+          if (videos.length >= 1) break
+        }
       }
 
       // Remove duplicates and sort by relevance
       const uniqueVideos = this.deduplicateAndRank(allVideos, trackName, artistName)
+
+      // If no embeddable videos found, fall back to search
+      if (uniqueVideos.length === 0) {
+        console.log(`⚠️ No embeddable videos found for "${trackName}" by "${artistName}". Using search fallback.`)
+        return this.fallbackSearch(trackName, artistName)
+      }
 
       return {
         success: true,
@@ -94,7 +118,8 @@ class YouTubeMusicIntegration {
       q: query,
       type: 'video',
       videoCategoryId: '10', // Music category
-      maxResults: '10',
+      videoEmbeddable: 'true', // Only embeddable videos
+      maxResults: '15', // Increased to find more embeddable options
       order: 'relevance',
       key: this.apiKey
     })
@@ -122,10 +147,11 @@ class YouTubeMusicIntegration {
         duration: this.formatDuration(details.duration || 'PT0S'),
         publishedAt: item.snippet.publishedAt,
         viewCount: details.viewCount,
-        embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`,
+        embeddable: details.embeddable,
+        embedUrl: details.embeddable ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1` : '',
         watchUrl: `https://www.youtube.com/watch?v=${videoId}`
       }
-    })
+    }).filter((video: any) => video.embeddable) // Only return embeddable videos
   }
 
   private async getVideoDetails(videoIds: string): Promise<Record<string, any>> {
@@ -133,7 +159,7 @@ class YouTubeMusicIntegration {
 
     const detailsUrl = `${this.baseUrl}/videos`
     const params = new URLSearchParams({
-      part: 'contentDetails,statistics',
+      part: 'contentDetails,statistics,status',
       id: videoIds,
       key: this.apiKey
     })
@@ -146,7 +172,8 @@ class YouTubeMusicIntegration {
       data.items?.forEach((item: any) => {
         details[item.id] = {
           duration: item.contentDetails?.duration,
-          viewCount: item.statistics?.viewCount
+          viewCount: item.statistics?.viewCount,
+          embeddable: item.status?.embeddable !== false
         }
       })
       

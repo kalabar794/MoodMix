@@ -12,19 +12,21 @@ export function useMusic() {
     setError(null)
 
     try {
-      // Use debug API if in development and debug mode is enabled
+      // Use test API if in development and debug mode is enabled
       const isDebugMode = process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.location.search.includes('debug=true')
-      const apiEndpoint = isDebugMode ? '/api/mood-to-music-debug' : '/api/mood-to-music'
+      const apiEndpoint = isDebugMode ? '/api/test-tracks' : '/api/mood-to-music'
       
       console.log('🎵 Fetching music from:', apiEndpoint)
 
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(mood),
-      })
+      const response = isDebugMode 
+        ? await fetch(apiEndpoint)  // GET request for test-tracks
+        : await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mood),
+          })
 
       const data = await response.json()
 

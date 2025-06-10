@@ -695,34 +695,3 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
   return null
 }
 
-// Helper function for similarity (not used in main matching)
-function calculateSimilarity(str1: string, str2: string): number {
-  const longer = str1.length > str2.length ? str1 : str2
-  const shorter = str1.length > str2.length ? str2 : str1
-  
-  if (longer.length === 0) return 1.0
-  
-  const editDistance = (s1: string, s2: string): number => {
-    const m = s1.length
-    const n = s2.length
-    const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0))
-    
-    for (let i = 0; i <= m; i++) dp[i][0] = i
-    for (let j = 0; j <= n; j++) dp[0][j] = j
-    
-    for (let i = 1; i <= m; i++) {
-      for (let j = 1; j <= n; j++) {
-        if (s1[i - 1] === s2[j - 1]) {
-          dp[i][j] = dp[i - 1][j - 1]
-        } else {
-          dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1
-        }
-      }
-    }
-    
-    return dp[m][n]
-  }
-  
-  const distance = editDistance(longer, shorter)
-  return (longer.length - distance) / longer.length
-}

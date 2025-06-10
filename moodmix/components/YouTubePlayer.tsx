@@ -44,7 +44,21 @@ export default function YouTubePlayer({
 
   // Check if this is a fallback search video (no embedUrl)
   const isSearchFallback = !video.embedUrl || video.embedUrl === ''
-  const embedUrl = isSearchFallback ? '' : `${video.embedUrl}&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
+  // Enhanced embed URL with better parameters for reliable playback
+  const embedUrl = isSearchFallback ? '' : (() => {
+    const baseUrl = video.embedUrl || `https://www.youtube-nocookie.com/embed/${video.id}`
+    const url = new URL(baseUrl)
+    
+    // Add reliable parameters
+    url.searchParams.set('autoplay', autoplay ? '1' : '0')
+    url.searchParams.set('rel', '0')
+    url.searchParams.set('modestbranding', '1')
+    url.searchParams.set('playsinline', '1')
+    url.searchParams.set('enablejsapi', '1')
+    url.searchParams.set('origin', typeof window !== 'undefined' ? window.location.origin : '')
+    
+    return url.toString()
+  })()
 
   return (
     <AnimatePresence>
@@ -53,7 +67,12 @@ export default function YouTubePlayer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.75) 100%)',
+            backdropFilter: 'blur(32px) saturate(150%) brightness(0.8)',
+            WebkitBackdropFilter: 'blur(32px) saturate(150%) brightness(0.8)'
+          }}
           onClick={(e) => {
             if (e.target === e.currentTarget) onClose()
           }}
@@ -62,11 +81,28 @@ export default function YouTubePlayer({
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-4xl bg-black rounded-xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-4xl rounded-2xl overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: `
+                0 20px 80px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.1)
+              `
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 bg-gray-900 border-b border-gray-700">
+            <div className="flex items-center justify-between p-4 border-b" style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.15)'
+            }}>
               <div className="flex-1 min-w-0">
                 <h3 className="text-white font-semibold truncate">
                   {video.title}
@@ -79,7 +115,13 @@ export default function YouTubePlayer({
               {/* Close Button */}
               <motion.button
                 onClick={onClose}
-                className="ml-4 w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition-colors"
+                className="ml-4 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -155,6 +197,7 @@ export default function YouTubePlayer({
                       allowFullScreen
                       onLoad={handleIframeLoad}
                       onError={handleIframeError}
+                      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
                     />
                   )}
                 </>
@@ -162,12 +205,24 @@ export default function YouTubePlayer({
             </div>
 
             {/* Controls Footer */}
-            <div className="p-4 bg-gray-900 border-t border-gray-700">
+            <div className="p-4 border-t" style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.15)'
+            }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <motion.button
                     onClick={() => window.open(video.watchUrl, '_blank')}
-                    className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                    style={{
+                      background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(220, 38, 38, 0.3)',
+                      boxShadow: '0 4px 16px rgba(220, 38, 38, 0.3)'
+                    }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -186,7 +241,13 @@ export default function YouTubePlayer({
                         navigator.clipboard?.writeText(video.watchUrl)
                       })
                     }}
-                    className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)'
+                    }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >

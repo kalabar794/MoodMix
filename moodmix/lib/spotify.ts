@@ -119,10 +119,41 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
     // Sort by popularity to get better quality tracks first
     const sortedTracks = allTracks.sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
 
-    // Remove duplicates and limit results
-    const uniqueTracks = sortedTracks.filter((track, index, self) => 
-      index === self.findIndex(t => t.id === track.id)
-    )
+    // Remove duplicates with improved matching logic
+    const seenTracks = new Set<string>()
+    const seenSignatures = new Set<string>()
+    const uniqueTracks = sortedTracks.filter((track) => {
+      // Check if we've seen this Spotify ID
+      if (seenTracks.has(track.id)) {
+        return false
+      }
+      
+      // Create a normalized signature for fuzzy matching
+      const trackName = track.name.toLowerCase()
+        .replace(/\s*\([^)]*\)/g, '') // Remove parentheses content
+        .replace(/\s*\[[^\]]*\]/g, '') // Remove bracket content
+        .replace(/\s*-\s*(feat|ft|featuring)\.?\s*.*/gi, '') // Remove featuring
+        .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix)$/gi, '') // Remove version info
+        .replace(/[^a-z0-9]/g, '') // Remove non-alphanumeric
+        .trim()
+      
+      const artistName = track.artists[0]?.name.toLowerCase()
+        .replace(/[^a-z0-9]/g, '') // Remove non-alphanumeric
+        .trim()
+      
+      const signature = `${trackName}-${artistName}`
+      
+      // Check if we've seen a similar track
+      if (seenSignatures.has(signature)) {
+        console.log(`Duplicate detected: "${track.name}" by ${track.artists[0]?.name}`)
+        return false
+      }
+      
+      // Mark as seen
+      seenTracks.add(track.id)
+      seenSignatures.add(signature)
+      return true
+    })
     
     // If we don't have enough tracks with previews, try fallback searches
     if (uniqueTracks.length < params.limit) {

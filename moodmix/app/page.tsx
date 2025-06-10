@@ -264,10 +264,13 @@ export default function Home() {
                     <MoodCardSelector onMoodSelect={handleMoodSelect} />
                   </motion.div>
 
-                  {/* Floating Elements */}
+                  {/* Enhanced Multi-Layered Floating Elements */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="floating-orb w-80 h-80 -top-40 -left-40" />
-                    <div className="floating-orb w-60 h-60 -bottom-30 -right-30" />
+                    <div className="floating-orb floating-orb-layer-3 w-96 h-96 -top-48 -left-48" style={{background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)'}} />
+                    <div className="floating-orb floating-orb-layer-2 w-80 h-80 -bottom-40 -right-40" style={{background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)'}} />
+                    <div className="floating-orb floating-orb-layer-1 w-64 h-64 top-1/3 -left-32" style={{background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)'}} />
+                    <div className="floating-orb floating-orb-layer-2 w-72 h-72 bottom-1/4 -right-36" style={{background: 'radial-gradient(circle, rgba(34, 197, 94, 0.25) 0%, transparent 70%)'}} />
+                    <div className="floating-orb floating-orb-layer-3 w-56 h-56 top-1/4 right-1/4" style={{background: 'radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%)'}} />
                   </div>
                 </motion.div>
               )}

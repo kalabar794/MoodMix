@@ -629,166 +629,100 @@ export const MUSIC_VIDEO_DATABASE: MusicVideoEntry[] = [
 ]
 
 export function findMusicVideo(trackName: string, artistName: string): MusicVideoEntry | null {
-  const normalizeString = (str: string) => str.toLowerCase()
-    .replace(/\s*\([^)]*\)/g, '') // Remove parentheses content
-    .replace(/\s*\[[^\]]*\]/g, '') // Remove bracket content
+  // STRICT MATCHING - NO FALSE POSITIVES
+  const normalizeStrict = (str: string) => str.toLowerCase()
+    .replace(/\s*\([^)]*\)/g, '') // Remove parentheses
+    .replace(/\s*\[[^\]]*\]/g, '') // Remove brackets
     .replace(/\s*-\s*(feat|ft|featuring)\.?\s*.*/gi, '') // Remove featuring
-    .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix|radio|acoustic|live).*$/gi, '') // Remove version info
-    .replace(/[^a-z0-9\s]/g, '') // Keep spaces for word matching
-    .replace(/\s+/g, ' ') // Normalize spaces
+    .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix|radio|acoustic|live|official).*$/gi, '') // Remove versions
+    .replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric
     .trim()
   
-  const normalizeForMatch = (str: string) => normalizeString(str).replace(/\s/g, '')
+  const trackNorm = normalizeStrict(trackName)
+  const artistNorm = normalizeStrict(artistName)
   
-  const normalizedTrack = normalizeString(trackName)
-  const normalizedArtist = normalizeString(artistName)
-  const strictTrack = normalizeForMatch(trackName)
-  const strictArtist = normalizeForMatch(artistName)
+  console.log(`🔍 Strict search: "${trackName}" by "${artistName}"`)
+  console.log(`   Normalized: "${trackNorm}" by "${artistNorm}"`)
   
-  console.log(`🔍 Looking for YouTube video: "${trackName}" by "${artistName}"`)
-  console.log(`🔍 Normalized: "${normalizedTrack}" by "${normalizedArtist}"`)
-  
-  // First try exact match
+  // 1. Try exact match first
   for (const entry of MUSIC_VIDEO_DATABASE) {
-    if (normalizeForMatch(entry.track) === strictTrack && 
-        normalizeForMatch(entry.artist) === strictArtist) {
-      console.log(`✅ Exact match found: ${entry.title}`)
-      return entry
-    }
-  }
-  
-  // Try track title exact match with any artist containing the search artist
-  for (const entry of MUSIC_VIDEO_DATABASE) {
-    if (normalizeForMatch(entry.track) === strictTrack && 
-        normalizeForMatch(entry.artist).includes(strictArtist)) {
-      console.log(`✅ Track exact + artist partial match: ${entry.title}`)
-      return entry
-    }
-  }
-  
-  // Try fuzzy track matching with exact artist
-  for (const entry of MUSIC_VIDEO_DATABASE) {
-    const entryTrackNorm = normalizeForMatch(entry.track)
-    const entryArtistNorm = normalizeForMatch(entry.artist)
+    const entryTrack = normalizeStrict(entry.track)
+    const entryArtist = normalizeStrict(entry.artist)
     
-    // Check if track contains key words and artist matches
-    if (entryArtistNorm === strictArtist) {
-      const trackWords = strictTrack.split(/\s+/).filter(w => w.length > 2)
-      const entryTrackWords = entryTrackNorm.split(/\s+/).filter(w => w.length > 2)
+    if (entryTrack === trackNorm && entryArtist === artistNorm) {
+      console.log(`✅ Exact match: ${entry.title}`)
+      return entry
+    }
+  }
+  
+  // 2. Try exact track with artist containing search artist
+  for (const entry of MUSIC_VIDEO_DATABASE) {
+    const entryTrack = normalizeStrict(entry.track)
+    const entryArtist = normalizeStrict(entry.artist)
+    
+    if (entryTrack === trackNorm && entryArtist.includes(artistNorm)) {
+      console.log(`✅ Track match + artist contains: ${entry.title}`)
+      return entry
+    }
+  }
+  
+  // 3. Try exact artist match only (but track must be reasonably similar)
+  for (const entry of MUSIC_VIDEO_DATABASE) {
+    const entryArtist = normalizeStrict(entry.artist)
+    
+    if (entryArtist === artistNorm) {
+      // Check if track names share significant words
+      const trackWords = trackNorm.match(/.{3,}/g) || [] // Words 3+ chars
+      const entryTrackNorm = normalizeStrict(entry.track)
       
-      let matchCount = 0
+      let matchingWords = 0
       for (const word of trackWords) {
-        if (entryTrackWords.some(ew => ew.includes(word) || word.includes(ew))) {
-          matchCount++
+        if (entryTrackNorm.includes(word)) {
+          matchingWords++
         }
       }
       
-      if (matchCount >= Math.min(2, trackWords.length)) {
-        console.log(`✅ Fuzzy track match with exact artist: ${entry.title}`)
+      // Require at least 50% of words to match
+      if (trackWords.length > 0 && matchingWords >= Math.ceil(trackWords.length / 2)) {
+        console.log(`✅ Artist match + partial track: ${entry.title}`)
         return entry
       }
     }
   }
   
-  // Try partial matches - track contains search, artist contains search
-  for (const entry of MUSIC_VIDEO_DATABASE) {
-    if (normalizeForMatch(entry.track).includes(strictTrack) && 
-        normalizeForMatch(entry.artist).includes(strictArtist)) {
-      console.log(`✅ Both partial match: ${entry.title}`)
-      return entry
-    }
-  }
-  
-  // Try broader partial matches - either track or artist partial match
-  for (const entry of MUSIC_VIDEO_DATABASE) {
-    const entryTrackNorm = normalizeForMatch(entry.track)
-    const entryArtistNorm = normalizeForMatch(entry.artist)
-    
-    // Track partial match with loose artist match
-    if (entryTrackNorm.includes(strictTrack) || strictTrack.includes(entryTrackNorm)) {
-      const artistSimilarity = calculateSimilarity(strictArtist, entryArtistNorm)
-      if (artistSimilarity > 0.6) {
-        console.log(`✅ Track partial + artist similarity match: ${entry.title}`)
-        return entry
-      }
-    }
-    
-    // Artist exact match, try finding any track from that artist
-    if (entryArtistNorm === strictArtist) {
-      console.log(`✅ Same artist match (different track): ${entry.title}`)
-      return entry
-    }
-  }
-  
-  // Theme-based matching for dance/party/pop tracks
-  const trackLower = trackName.toLowerCase()
-  const themeMatches = {
-    dance: ['dance', 'dancing', 'party', 'club', 'beat', 'groove'],
-    pop: ['pop', 'radio', 'hit', 'chart'],
-    electronic: ['electronic', 'edm', 'synth', 'electro'],
-    upbeat: ['upbeat', 'energetic', 'happy', 'fun', 'celebration'],
-    chill: ['chill', 'relax', 'calm', 'smooth', 'ambient']
-  }
-  
-  for (const [theme, keywords] of Object.entries(themeMatches)) {
-    const hasThemeKeyword = keywords.some(keyword => trackLower.includes(keyword))
-    if (hasThemeKeyword) {
-      console.log(`🎵 Track contains "${theme}" theme, looking for matching tracks...`)
-      
-      // Find tracks in database that match this theme
-      for (const entry of MUSIC_VIDEO_DATABASE) {
-        const entryTitleLower = entry.title.toLowerCase()
-        const entryTrackLower = entry.track.toLowerCase()
-        
-        if (keywords.some(keyword => 
-          entryTitleLower.includes(keyword) || entryTrackLower.includes(keyword)
-        )) {
-          console.log(`✅ Theme-based match (${theme}): ${entry.title}`)
-          return entry
-        }
-      }
-    }
-  }
-  
-  // Final fallback - try artist similarity only 
-  for (const entry of MUSIC_VIDEO_DATABASE) {
-    const entryArtistNorm = normalizeForMatch(entry.artist)
-    const similarity = calculateSimilarity(strictArtist, entryArtistNorm)
-    
-    if (similarity > 0.8) {
-      console.log(`✅ High artist similarity match: ${entry.title} (similarity: ${similarity})`)
-      return entry
-    }
-  }
-  
-  // Super fallback - return a popular track if we have no matches for obscure tracks
-  if (!trackName.includes('Official') && !artistName.includes('Official')) {
-    const popularFallbacks = MUSIC_VIDEO_DATABASE.filter(entry => 
-      ['The Weeknd', 'Dua Lipa', 'Harry Styles', 'Taylor Swift', 'Bruno Mars'].includes(entry.artist)
-    )
-    if (popularFallbacks.length > 0) {
-      const randomFallback = popularFallbacks[Math.floor(Math.random() * popularFallbacks.length)]
-      console.log(`✅ Popular fallback match for obscure track: ${randomFallback.title}`)
-      return randomFallback
-    }
-  }
-  
-  console.log(`⚠️ No match found for "${trackName}" by "${artistName}"`)
+  // NO FALLBACK - Return null if no good match
+  console.log(`❌ No match for "${trackName}" by "${artistName}"`)
   return null
 }
 
+// Helper function for similarity (not used in main matching)
 function calculateSimilarity(str1: string, str2: string): number {
   const longer = str1.length > str2.length ? str1 : str2
   const shorter = str1.length > str2.length ? str2 : str1
   
   if (longer.length === 0) return 1.0
   
-  let matches = 0
-  for (let i = 0; i < shorter.length; i++) {
-    if (longer.includes(shorter[i])) {
-      matches++
+  const editDistance = (s1: string, s2: string): number => {
+    const m = s1.length
+    const n = s2.length
+    const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0))
+    
+    for (let i = 0; i <= m; i++) dp[i][0] = i
+    for (let j = 0; j <= n; j++) dp[0][j] = j
+    
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        if (s1[i - 1] === s2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1]
+        } else {
+          dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1
+        }
+      }
     }
+    
+    return dp[m][n]
   }
   
-  return matches / longer.length
+  const distance = editDistance(longer, shorter)
+  return (longer.length - distance) / longer.length
 }

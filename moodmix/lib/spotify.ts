@@ -57,8 +57,17 @@ async function getAccessToken(): Promise<string> {
         statusText: error.response?.statusText,
         data: error.response?.data
       })
+      
+      // More specific error messages
+      if (error.response?.status === 401) {
+        throw new Error('Invalid Spotify credentials. Please check SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET.')
+      } else if (error.response?.status === 503) {
+        throw new Error('Spotify service temporarily unavailable. Please try again later.')
+      } else if (!error.response) {
+        throw new Error('Network error connecting to Spotify. Please check your internet connection.')
+      }
     }
-    throw new Error('Failed to authenticate with Spotify')
+    throw new Error('Failed to authenticate with Spotify. Please try again.')
   }
 }
 

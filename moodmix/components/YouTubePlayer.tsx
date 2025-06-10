@@ -193,11 +193,10 @@ export default function YouTubePlayer({
                       title={video.title}
                       className="w-full h-full"
                       frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                       allowFullScreen
                       onLoad={handleIframeLoad}
                       onError={handleIframeError}
-                      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
                     />
                   )}
                 </>

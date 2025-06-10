@@ -1132,6 +1132,88 @@ export const MUSIC_VIDEO_DATABASE: MusicVideoEntry[] = [
     title: "Kygo - Firestone (Official Music Video) ft. Conrad Sewell",
     channelTitle: "Kygo",
     duration: "4:33"
+  },
+  
+  // Additional common tracks that might appear in searches
+  {
+    artist: "The Weeknd",
+    track: "Save Your Tears",
+    videoId: "XXYlFuWEuKI",
+    title: "The Weeknd - Save Your Tears (Official Music Video)",
+    channelTitle: "TheWeekndXO",
+    duration: "3:35"
+  },
+  {
+    artist: "Dua Lipa",
+    track: "Don't Start Now",
+    videoId: "oygrmJFKYZY",
+    title: "Dua Lipa - Don't Start Now (Official Music Video)",
+    channelTitle: "Dua Lipa",
+    duration: "3:03"
+  },
+  {
+    artist: "Ed Sheeran",
+    track: "Perfect",
+    videoId: "2Vv-BfVoq4g",
+    title: "Ed Sheeran - Perfect (Official Music Video)",
+    channelTitle: "Ed Sheeran",
+    duration: "4:23"
+  },
+  {
+    artist: "Adele",
+    track: "Hello",
+    videoId: "YQHsXMglC9A",
+    title: "Adele - Hello",
+    channelTitle: "Adele",
+    duration: "4:55"
+  },
+  {
+    artist: "Maroon 5",
+    track: "Memories",
+    videoId: "SlPhMPnQ58k",
+    title: "Maroon 5 - Memories (Official Music Video)",
+    channelTitle: "Maroon 5",
+    duration: "3:09"
+  },
+  {
+    artist: "Shawn Mendes",
+    track: "Señorita",
+    videoId: "Pkh8UtuejGw",
+    title: "Shawn Mendes, Camila Cabello - Señorita",
+    channelTitle: "Shawn Mendes",
+    duration: "3:10"
+  },
+  {
+    artist: "Lewis Capaldi",
+    track: "Before You Go",
+    videoId: "Jtauh8GcxBY",
+    title: "Lewis Capaldi - Before You Go (Official Music Video)",
+    channelTitle: "Lewis Capaldi",
+    duration: "3:35"
+  },
+  {
+    artist: "Imagine Dragons",
+    track: "Bones",
+    videoId: "TO-_3tck2tg",
+    title: "Imagine Dragons - Bones (Official Music Video)",
+    channelTitle: "Imagine Dragons",
+    duration: "2:45"
+  },
+  {
+    artist: "OneRepublic",
+    track: "I Ain't Worried",
+    videoId: "mNEUkkoUoIA",
+    title: "OneRepublic - I Ain't Worried (From \"Top Gun: Maverick\") [Official Music Video]",
+    channelTitle: "OneRepublic",
+    duration: "2:28"
+  },
+  {
+    artist: "Post Malone",
+    track: "Sunflower",
+    videoId: "ApXoWvfEYVU",
+    title: "Post Malone, Swae Lee - Sunflower (Spider-Man: Into the Spider-Verse)",
+    channelTitle: "Post Malone",
+    duration: "2:37"
   }
 ]
 
@@ -1141,7 +1223,8 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
     .replace(/\s*\([^)]*\)/g, '') // Remove parentheses
     .replace(/\s*\[[^\]]*\]/g, '') // Remove brackets
     .replace(/\s*-\s*(feat|ft|featuring)\.?\s*.*/gi, '') // Remove featuring
-    .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix|radio|acoustic|live|official).*$/gi, '') // Remove versions
+    .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix|radio|acoustic|live|official|audio|lyric|lyrics|video|visualizer).*$/gi, '') // Remove versions
+    .replace(/['"`]/g, '') // Remove quotes
     .replace(/[^a-z0-9\s]/g, '') // Keep spaces for word matching
     .replace(/\s+/g, ' ') // Normalize spaces
     .trim()
@@ -1150,9 +1233,10 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
   
   const trackNorm = normalizeForMatching(trackName)
   const trackStrict = normalizeStrict(trackName)
+  const artistNorm = normalizeForMatching(artistName)
   const artistStrict = normalizeStrict(artistName)
   
-  console.log(`🔍 Searching: "${trackName}" by "${artistName}"`)
+  console.log(`🔍 Searching: "${trackName}" by "${artistName}" (normalized: "${trackNorm}" by "${artistNorm}")`)
   
   // 1. Try exact match first
   for (const entry of MUSIC_VIDEO_DATABASE) {
@@ -1177,13 +1261,16 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
     }
   }
   
-  // 3. Try exact artist with similar track
+  // 3. Try exact artist with similar track (more flexible)
   for (const entry of MUSIC_VIDEO_DATABASE) {
     const entryArtist = normalizeStrict(entry.artist)
+    const entryArtistNorm = normalizeForMatching(entry.artist)
     
+    // More flexible artist matching
     if (entryArtist === artistStrict || 
-        (artistStrict.length > 4 && entryArtist.includes(artistStrict)) ||
-        (entryArtist.length > 4 && artistStrict.includes(entryArtist))) {
+        (artistStrict.length > 3 && entryArtist.includes(artistStrict)) ||
+        (entryArtist.length > 3 && artistStrict.includes(entryArtist)) ||
+        entryArtistNorm === artistNorm) {
       
       // Check track similarity with words
       const trackWords = trackNorm.split(' ').filter(w => w.length > 2)
@@ -1192,28 +1279,61 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
       
       let matchCount = 0
       for (const word of trackWords) {
-        if (entryWords.some(ew => ew === word || (word.length > 3 && ew.includes(word)))) {
+        if (entryWords.some(ew => ew === word || (word.length > 3 && ew.includes(word)) || (ew.length > 3 && word.includes(ew)))) {
           matchCount++
         }
       }
       
-      // More lenient: 40% match for same artist
-      if (trackWords.length > 0 && matchCount >= Math.ceil(trackWords.length * 0.4)) {
-        console.log(`✅ Artist match + track similarity: ${entry.title}`)
+      // More lenient: 30% match for same artist (lowered from 40%)
+      if (trackWords.length > 0 && matchCount >= Math.max(1, Math.floor(trackWords.length * 0.3))) {
+        console.log(`✅ Artist match + track similarity (${matchCount}/${trackWords.length} words): ${entry.title}`)
         return entry
       }
     }
   }
   
-  // 4. Try popular artist partial match (for when Spotify returns full names)
-  const popularArtists = ['weeknd', 'swift', 'drake', 'bieber', 'grande', 'sheeran', 'mars', 'gaga', 'beyonce']
+  // 4. Try fuzzy track matching (for slight variations)
+  for (const entry of MUSIC_VIDEO_DATABASE) {
+    const entryTrack = normalizeStrict(entry.track)
+    const entryArtist = normalizeStrict(entry.artist)
+    
+    // Check if track is very similar (allowing for small differences)
+    if (areSimilarStrings(trackStrict, entryTrack, 0.85) && 
+        (areSimilarStrings(artistStrict, entryArtist, 0.85) || 
+         entryArtist.includes(artistStrict) || 
+         artistStrict.includes(entryArtist))) {
+      console.log(`✅ Fuzzy match: ${entry.title}`)
+      return entry
+    }
+  }
+  
+  // 5. Try popular artist partial match (expanded list)
+  const popularArtists = [
+    'weeknd', 'swift', 'drake', 'bieber', 'grande', 'sheeran', 'mars', 'gaga', 'beyonce',
+    'adele', 'eminem', 'rihanna', 'postmalone', 'billieeilish', 'dualipa', 'oliviarodrigo',
+    'haroldstyles', 'justintimberlake', 'katyperry', 'selenagomez', 'shawnmendes',
+    'charlieputh', 'camilacabello', 'halsey', 'demilovato', 'nickiminaj', 'cardib',
+    'meganthestallion', 'dojacat', 'lizzo', 'sia', 'coldplay', 'maroon5', 'imaginedragons',
+    'onerepublic', 'twentyonepilots', 'teddyswims', 'noahkahan', 'sabrinacarpenter'
+  ]
+  
+  const artistLower = artistStrict.replace(/\s/g, '')
   for (const popArtist of popularArtists) {
-    if (artistStrict.includes(popArtist)) {
+    if (artistLower.includes(popArtist) || popArtist.includes(artistLower)) {
       for (const entry of MUSIC_VIDEO_DATABASE) {
-        const entryArtist = normalizeStrict(entry.artist)
-        if (entryArtist.includes(popArtist)) {
-          console.log(`✅ Popular artist match: ${entry.title}`)
-          return entry
+        const entryArtist = normalizeStrict(entry.artist).replace(/\s/g, '')
+        if (entryArtist.includes(popArtist) || popArtist.includes(entryArtist)) {
+          // Also check if track has at least one word in common
+          const trackWords = trackNorm.split(' ').filter(w => w.length > 2)
+          const entryTrackNorm = normalizeForMatching(entry.track)
+          const hasCommonWord = trackWords.some(word => 
+            entryTrackNorm.includes(word) || word.includes(entryTrackNorm.split(' ')[0])
+          )
+          
+          if (hasCommonWord) {
+            console.log(`✅ Popular artist match with track word: ${entry.title}`)
+            return entry
+          }
         }
       }
     }
@@ -1221,5 +1341,45 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
   
   console.log(`❌ No match for "${trackName}" by "${artistName}"`)
   return null
+}
+
+// Helper function to check string similarity (Levenshtein distance based)
+function areSimilarStrings(str1: string, str2: string, threshold: number = 0.85): boolean {
+  if (str1 === str2) return true
+  
+  const lengthDiff = Math.abs(str1.length - str2.length)
+  if (lengthDiff > Math.max(str1.length, str2.length) * 0.3) return false
+  
+  const distance = levenshteinDistance(str1, str2)
+  const maxLength = Math.max(str1.length, str2.length)
+  const similarity = 1 - (distance / maxLength)
+  
+  return similarity >= threshold
+}
+
+// Levenshtein distance implementation
+function levenshteinDistance(str1: string, str2: string): number {
+  const m = str1.length
+  const n = str2.length
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0))
+  
+  for (let i = 0; i <= m; i++) dp[i][0] = i
+  for (let j = 0; j <= n; j++) dp[0][j] = j
+  
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1]
+      } else {
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,    // deletion
+          dp[i][j - 1] + 1,    // insertion
+          dp[i - 1][j - 1] + 1 // substitution
+        )
+      }
+    }
+  }
+  
+  return dp[m][n]
 }
 

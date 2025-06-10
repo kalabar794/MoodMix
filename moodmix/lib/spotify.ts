@@ -134,6 +134,7 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
     const uniqueTracks = sortedTracks.filter((track) => {
       // Check if we've seen this Spotify ID
       if (seenTracks.has(track.id)) {
+        console.log(`Duplicate ID detected: "${track.name}" by ${track.artists[0]?.name} (ID: ${track.id})`)
         return false
       }
       
@@ -142,20 +143,32 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
         .replace(/\s*\([^)]*\)/g, '') // Remove parentheses content
         .replace(/\s*\[[^\]]*\]/g, '') // Remove bracket content
         .replace(/\s*-\s*(feat|ft|featuring)\.?\s*.*/gi, '') // Remove featuring
-        .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix)$/gi, '') // Remove version info
-        .replace(/[^a-z0-9]/g, '') // Remove non-alphanumeric
+        .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix|radio|acoustic|live|demo|single|album).*$/gi, '') // Remove version info
+        .replace(/['"`]/g, '') // Remove quotes
+        .replace(/[^a-z0-9\s]/g, '') // Keep alphanumeric and spaces
+        .replace(/\s+/g, '') // Remove all spaces for exact matching
         .trim()
       
       const artistName = track.artists[0]?.name.toLowerCase()
-        .replace(/[^a-z0-9]/g, '') // Remove non-alphanumeric
+        .replace(/[^a-z0-9\s]/g, '') // Keep alphanumeric and spaces
+        .replace(/\s+/g, '') // Remove all spaces for exact matching
         .trim()
       
-      const signature = `${trackName}-${artistName}`
+      const signature = `${artistName}${trackName}` // Artist first for better matching
       
       // Check if we've seen a similar track
       if (seenSignatures.has(signature)) {
-        console.log(`Duplicate detected: "${track.name}" by ${track.artists[0]?.name}`)
+        console.log(`Duplicate signature detected: "${track.name}" by ${track.artists[0]?.name} (sig: ${signature})`)
         return false
+      }
+      
+      // Additional check: Look for very similar names even with slight differences
+      for (const existingSig of seenSignatures) {
+        // If signatures are very similar (e.g., differ by only 1-2 characters), consider it a duplicate
+        if (areSimilarStrings(signature, existingSig, 0.95)) {
+          console.log(`Similar track detected: "${track.name}" by ${track.artists[0]?.name} similar to existing signature`)
+          return false
+        }
       }
       
       // Mark as seen
@@ -177,6 +190,49 @@ export async function searchTracksByMood(params: MoodMusicParams): Promise<Spoti
     console.error('Error searching Spotify tracks:', error)
     throw new Error('Failed to search tracks')
   }
+}
+
+// Helper function to check string similarity
+function areSimilarStrings(str1: string, str2: string, threshold: number = 0.95): boolean {
+  // If strings are identical, they're similar
+  if (str1 === str2) return true
+  
+  // If lengths differ significantly, they're not similar
+  const lengthDiff = Math.abs(str1.length - str2.length)
+  if (lengthDiff > Math.max(str1.length, str2.length) * 0.2) return false
+  
+  // Calculate Levenshtein distance
+  const distance = levenshteinDistance(str1, str2)
+  const maxLength = Math.max(str1.length, str2.length)
+  const similarity = 1 - (distance / maxLength)
+  
+  return similarity >= threshold
+}
+
+// Levenshtein distance implementation
+function levenshteinDistance(str1: string, str2: string): number {
+  const m = str1.length
+  const n = str2.length
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0))
+  
+  for (let i = 0; i <= m; i++) dp[i][0] = i
+  for (let j = 0; j <= n; j++) dp[0][j] = j
+  
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1]
+      } else {
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,    // deletion
+          dp[i][j - 1] + 1,    // insertion
+          dp[i - 1][j - 1] + 1 // substitution
+        )
+      }
+    }
+  }
+  
+  return dp[m][n]
 }
 
 // Generate search queries using broader terms more likely to return results

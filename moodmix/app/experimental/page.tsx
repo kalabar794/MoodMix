@@ -274,7 +274,7 @@ export default function MoodMixInterface() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [currentMood, setCurrentMood] = useState<string>("");
-  const { tracks, isLoading, error, fetchMusicByMood } = useMusic();
+  const { tracks, isLoading, fetchMusicByMood } = useMusic();
 
   const moods = [
     {

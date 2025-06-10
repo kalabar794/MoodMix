@@ -629,68 +629,90 @@ export const MUSIC_VIDEO_DATABASE: MusicVideoEntry[] = [
 ]
 
 export function findMusicVideo(trackName: string, artistName: string): MusicVideoEntry | null {
-  // STRICT MATCHING - NO FALSE POSITIVES
-  const normalizeStrict = (str: string) => str.toLowerCase()
+  // Improved normalization that preserves some structure
+  const normalizeForMatching = (str: string) => str.toLowerCase()
     .replace(/\s*\([^)]*\)/g, '') // Remove parentheses
     .replace(/\s*\[[^\]]*\]/g, '') // Remove brackets
     .replace(/\s*-\s*(feat|ft|featuring)\.?\s*.*/gi, '') // Remove featuring
     .replace(/\s*-\s*(remix|remaster|remastered|version|edit|mix|radio|acoustic|live|official).*$/gi, '') // Remove versions
-    .replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric
+    .replace(/[^a-z0-9\s]/g, '') // Keep spaces for word matching
+    .replace(/\s+/g, ' ') // Normalize spaces
     .trim()
   
-  const trackNorm = normalizeStrict(trackName)
-  const artistNorm = normalizeStrict(artistName)
+  const normalizeStrict = (str: string) => normalizeForMatching(str).replace(/\s/g, '')
   
-  console.log(`🔍 Strict search: "${trackName}" by "${artistName}"`)
-  console.log(`   Normalized: "${trackNorm}" by "${artistNorm}"`)
+  const trackNorm = normalizeForMatching(trackName)
+  const artistNorm = normalizeForMatching(artistName)
+  const trackStrict = normalizeStrict(trackName)
+  const artistStrict = normalizeStrict(artistName)
+  
+  console.log(`🔍 Searching: "${trackName}" by "${artistName}"`)
   
   // 1. Try exact match first
   for (const entry of MUSIC_VIDEO_DATABASE) {
     const entryTrack = normalizeStrict(entry.track)
     const entryArtist = normalizeStrict(entry.artist)
     
-    if (entryTrack === trackNorm && entryArtist === artistNorm) {
+    if (entryTrack === trackStrict && entryArtist === artistStrict) {
       console.log(`✅ Exact match: ${entry.title}`)
       return entry
     }
   }
   
-  // 2. Try exact track with artist containing search artist
+  // 2. Try exact track with artist containing or contained
   for (const entry of MUSIC_VIDEO_DATABASE) {
     const entryTrack = normalizeStrict(entry.track)
     const entryArtist = normalizeStrict(entry.artist)
     
-    if (entryTrack === trackNorm && entryArtist.includes(artistNorm)) {
-      console.log(`✅ Track match + artist contains: ${entry.title}`)
+    if (entryTrack === trackStrict && 
+        (entryArtist.includes(artistStrict) || artistStrict.includes(entryArtist))) {
+      console.log(`✅ Track match + flexible artist: ${entry.title}`)
       return entry
     }
   }
   
-  // 3. Try exact artist match only (but track must be reasonably similar)
+  // 3. Try exact artist with similar track
   for (const entry of MUSIC_VIDEO_DATABASE) {
     const entryArtist = normalizeStrict(entry.artist)
     
-    if (entryArtist === artistNorm) {
-      // Check if track names share significant words
-      const trackWords = trackNorm.match(/.{3,}/g) || [] // Words 3+ chars
-      const entryTrackNorm = normalizeStrict(entry.track)
+    if (entryArtist === artistStrict || 
+        (artistStrict.length > 4 && entryArtist.includes(artistStrict)) ||
+        (entryArtist.length > 4 && artistStrict.includes(entryArtist))) {
       
-      let matchingWords = 0
+      // Check track similarity with words
+      const trackWords = trackNorm.split(' ').filter(w => w.length > 2)
+      const entryTrackNorm = normalizeForMatching(entry.track)
+      const entryWords = entryTrackNorm.split(' ').filter(w => w.length > 2)
+      
+      let matchCount = 0
       for (const word of trackWords) {
-        if (entryTrackNorm.includes(word)) {
-          matchingWords++
+        if (entryWords.some(ew => ew === word || (word.length > 3 && ew.includes(word)))) {
+          matchCount++
         }
       }
       
-      // Require at least 50% of words to match
-      if (trackWords.length > 0 && matchingWords >= Math.ceil(trackWords.length / 2)) {
-        console.log(`✅ Artist match + partial track: ${entry.title}`)
+      // More lenient: 40% match for same artist
+      if (trackWords.length > 0 && matchCount >= Math.ceil(trackWords.length * 0.4)) {
+        console.log(`✅ Artist match + track similarity: ${entry.title}`)
         return entry
       }
     }
   }
   
-  // NO FALLBACK - Return null if no good match
+  // 4. Try popular artist partial match (for when Spotify returns full names)
+  const popularArtists = ['weeknd', 'swift', 'drake', 'bieber', 'grande', 'sheeran', 'mars', 'gaga', 'beyonce']
+  for (const popArtist of popularArtists) {
+    if (artistStrict.includes(popArtist)) {
+      for (const entry of MUSIC_VIDEO_DATABASE) {
+        const entryArtist = normalizeStrict(entry.artist)
+        if (entryArtist.includes(popArtist)) {
+          console.log(`✅ Popular artist match: ${entry.title}`)
+          return entry
+        }
+      }
+    }
+  }
+  
   console.log(`❌ No match for "${trackName}" by "${artistName}"`)
   return null
 }

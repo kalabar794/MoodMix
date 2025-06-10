@@ -274,7 +274,7 @@ export default function MoodMixInterface() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [currentMood, setCurrentMood] = useState<string>("");
-  const { tracks, isLoading, fetchMusicByMood } = useMusic();
+  const { tracks, isLoading, fetchMusicForMood } = useMusic();
 
   const moods = [
     {
@@ -372,7 +372,28 @@ export default function MoodMixInterface() {
   const handleMoodSelect = async (mood: string) => {
     setSelectedMood(mood);
     setCurrentMood(mood);
-    await fetchMusicByMood(mood);
+    
+    // Find the mood data to get the color
+    const moodData = moods.find(m => m.mood === mood);
+    const color = moodData?.gradient.includes('orange') ? '#FFA500' :
+                  moodData?.gradient.includes('blue') ? '#4169E1' :
+                  moodData?.gradient.includes('red') ? '#FF0000' :
+                  moodData?.gradient.includes('emerald') ? '#50C878' :
+                  moodData?.gradient.includes('purple') ? '#800080' :
+                  moodData?.gradient.includes('amber') ? '#FFBF00' :
+                  moodData?.gradient.includes('yellow') ? '#FFD700' :
+                  moodData?.gradient.includes('pink') ? '#FFC0CB' :
+                  moodData?.gradient.includes('green') ? '#00FF00' : '#8B00FF';
+    
+    // Convert mood string to MoodSelection object
+    const moodSelection = {
+      primary: mood.toLowerCase(),
+      color: color,
+      intensity: 50,
+      coordinates: { x: 0, y: 0 }
+    };
+    
+    await fetchMusicForMood(moodSelection);
     
     // After 3 seconds (loading animation duration), show results
     setTimeout(() => {

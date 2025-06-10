@@ -1173,3 +1173,8 @@ body {
 .btn-secondary:hover::before {
   left: 100%;
 }
+
+/* 3D perspective for experimental page */
+.perspective-1000 {
+  perspective: 1000px;
+}

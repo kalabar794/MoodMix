@@ -9,7 +9,7 @@ describe('YouTube Video Database', () => {
 
   describe('MUSIC_VIDEO_DATABASE', () => {
     it('should have valid structure for all entries', () => {
-      MUSIC_VIDEO_DATABASE.forEach((entry, index) => {
+      MUSIC_VIDEO_DATABASE.forEach((entry) => {
         expect(entry).toHaveProperty('artist')
         expect(entry).toHaveProperty('track')
         expect(entry).toHaveProperty('videoId')
@@ -148,15 +148,12 @@ describe('YouTube Video Database', () => {
     it('should prioritize exact matches over partial matches', () => {
       // Add a mock to ensure exact match is found first
       const exactResult = findMusicVideo('Circles', 'Post Malone')
-      const partialResult = findMusicVideo('Circle', 'Post Malone')
       
       expect(exactResult).not.toBeNull()
       expect(exactResult?.track).toBe('Circles')
     })
 
     it('should handle popular artist partial matching', () => {
-      const popularArtists = ['swift', 'drake', 'bieber', 'grande']
-      
       // Test that searching with partial popular artist names works
       const result = findMusicVideo('Any Track', 'taylor swift and friends')
       
@@ -205,9 +202,9 @@ describe('YouTube Video Database', () => {
     })
 
     it('should handle null/undefined gracefully', () => {
-      // @ts-ignore - Testing runtime behavior
+      // @ts-expect-error - Testing runtime behavior
       expect(() => findMusicVideo(null, null)).not.toThrow()
-      // @ts-ignore
+      // @ts-expect-error - Testing runtime behavior
       expect(() => findMusicVideo(undefined, undefined)).not.toThrow()
     })
   })

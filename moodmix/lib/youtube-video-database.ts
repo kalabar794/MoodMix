@@ -642,7 +642,6 @@ export function findMusicVideo(trackName: string, artistName: string): MusicVide
   const normalizeStrict = (str: string) => normalizeForMatching(str).replace(/\s/g, '')
   
   const trackNorm = normalizeForMatching(trackName)
-  const artistNorm = normalizeForMatching(artistName)
   const trackStrict = normalizeStrict(trackName)
   const artistStrict = normalizeStrict(artistName)
   

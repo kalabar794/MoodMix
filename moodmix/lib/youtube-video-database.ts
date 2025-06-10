@@ -625,6 +625,513 @@ export const MUSIC_VIDEO_DATABASE: MusicVideoEntry[] = [
     title: "Jason Derulo - Want To Want Me (Official Music Video)",
     channelTitle: "Jason Derulo",
     duration: "3:29"
+  },
+
+  // Additional popular tracks for better coverage
+  // Recent hits 2023-2024
+  {
+    artist: "Teddy Swims",
+    track: "Lose Control",
+    videoId: "GZ3zL5ZlJZE",
+    title: "Teddy Swims - Lose Control (Official Music Video)",
+    channelTitle: "Teddy Swims",
+    duration: "3:30"
+  },
+  {
+    artist: "Benson Boone",
+    track: "Beautiful Things",
+    videoId: "Oa_RSwwpPaA",
+    title: "Benson Boone - Beautiful Things (Official Music Video)",
+    channelTitle: "Benson Boone",
+    duration: "3:00"
+  },
+  {
+    artist: "Noah Kahan",
+    track: "Stick Season",
+    videoId: "oKOtzPOerSU",
+    title: "Noah Kahan - Stick Season (Official Lyric Video)",
+    channelTitle: "Noah Kahan",
+    duration: "3:02"
+  },
+  {
+    artist: "Sabrina Carpenter",
+    track: "Espresso",
+    videoId: "eVli-tstM5E",
+    title: "Sabrina Carpenter - Espresso (Official Music Video)",
+    channelTitle: "Sabrina Carpenter",
+    duration: "2:55"
+  },
+  {
+    artist: "Chappell Roan",
+    track: "Good Luck, Babe!",
+    videoId: "1RKqOmSkGgM",
+    title: "Chappell Roan - Good Luck, Babe! (Official Music Video)",
+    channelTitle: "Chappell Roan",
+    duration: "3:38"
+  },
+  {
+    artist: "Tate McRae",
+    track: "greedy",
+    videoId: "Lsd5chZna6I",
+    title: "Tate McRae - greedy (Official Music Video)",
+    channelTitle: "Tate McRae",
+    duration: "3:51"
+  },
+  {
+    artist: "Kenya Grace",
+    track: "Strangers",
+    videoId: "uZT6fJ0K0ZQ",
+    title: "Kenya Grace - Strangers (Official Video)",
+    channelTitle: "Kenya Grace",
+    duration: "2:52"
+  },
+  {
+    artist: "Zach Bryan",
+    track: "I Remember Everything",
+    videoId: "U2Bxl1jwqI8",
+    title: "Zach Bryan - I Remember Everything (feat. Kacey Musgraves) (Official Video)",
+    channelTitle: "Zach Bryan",
+    duration: "3:47"
+  },
+  {
+    artist: "Morgan Wallen",
+    track: "Last Night",
+    videoId: "YcSGzGZdPh8",
+    title: "Morgan Wallen - Last Night (Official Music Video)",
+    channelTitle: "Morgan Wallen",
+    duration: "2:43"
+  },
+  {
+    artist: "Luke Combs",
+    track: "Fast Car",
+    videoId: "p_2rKLw-gSE",
+    title: "Luke Combs - Fast Car (Official Music Video)",
+    channelTitle: "Luke Combs",
+    duration: "4:26"
+  },
+
+  // More variations of The Weeknd tracks
+  {
+    artist: "The Weeknd",
+    track: "Popular",
+    videoId: "4NRXx6U8ABQ",
+    title: "The Weeknd - Blinding Lights (Official Video)",
+    channelTitle: "TheWeekndXO",
+    duration: "3:20"
+  },
+  {
+    artist: "The Weeknd",
+    track: "Die For You",
+    videoId: "mTLQhPFx2nM",
+    title: "The Weeknd - Die For You (Official Music Video)",
+    channelTitle: "TheWeekndXO",
+    duration: "4:20"
+  },
+  {
+    artist: "The Weeknd",
+    track: "Is There Someone Else?",
+    videoId: "b3C-E1CbYig",
+    title: "The Weeknd - Is There Someone Else? (Official Music Video)",
+    channelTitle: "TheWeekndXO",
+    duration: "3:19"
+  },
+  {
+    artist: "The Weeknd",
+    track: "Out of Time",
+    videoId: "2fDzCWNS3ig",
+    title: "The Weeknd - Out of Time (Official Video)",
+    channelTitle: "TheWeekndXO",
+    duration: "3:34"
+  },
+
+  // More pop hits that might appear
+  {
+    artist: "Dua Lipa",
+    track: "Houdini",
+    videoId: "MkKMISiNTI8",
+    title: "Dua Lipa - Houdini (Official Music Video)",
+    channelTitle: "Dua Lipa",
+    duration: "3:05"
+  },
+  {
+    artist: "Olivia Rodrigo",
+    track: "vampire",
+    videoId: "RlPNh_PBZb4",
+    title: "Olivia Rodrigo - vampire (Official Music Video)",
+    channelTitle: "Olivia Rodrigo",
+    duration: "3:39"
+  },
+  {
+    artist: "Olivia Rodrigo",
+    track: "get him back!",
+    videoId: "ylF5ZQCqOnM",
+    title: "Olivia Rodrigo - get him back! (Official Music Video)",
+    channelTitle: "Olivia Rodrigo",
+    duration: "3:51"
+  },
+  {
+    artist: "Taylor Swift",
+    track: "Cruel Summer",
+    videoId: "ic8j13piAhQ",
+    title: "Taylor Swift - Cruel Summer (Official Audio)",
+    channelTitle: "Taylor Swift",
+    duration: "2:58"
+  },
+  {
+    artist: "Taylor Swift",
+    track: "Karma",
+    videoId: "XzOvgu-5UxE",
+    title: "Taylor Swift - Karma (Official Music Video) ft. Ice Spice",
+    channelTitle: "Taylor Swift",
+    duration: "4:17"
+  },
+  {
+    artist: "Taylor Swift",
+    track: "Lavender Haze",
+    videoId: "wyksfJmPTLg",
+    title: "Taylor Swift - Lavender Haze (Official Music Video)",
+    channelTitle: "Taylor Swift",
+    duration: "4:18"
+  },
+
+  // Dance/EDM for energetic moods
+  {
+    artist: "Tiësto",
+    track: "The Business",
+    videoId: "nCg3ufihKyU",
+    title: "Tiësto - The Business (Official Music Video)",
+    channelTitle: "Tiësto",
+    duration: "2:44"
+  },
+  {
+    artist: "Swedish House Mafia",
+    track: "Moth To A Flame",
+    videoId: "JWPx1sFkAqY",
+    title: "Swedish House Mafia and The Weeknd - Moth To A Flame (Official Video)",
+    channelTitle: "Swedish House Mafia",
+    duration: "3:54"
+  },
+  {
+    artist: "Joel Corry",
+    track: "Head & Heart",
+    videoId: "CRuOOxF-ENQ",
+    title: "Joel Corry x MNEK - Head & Heart (Official Music Video)",
+    channelTitle: "Joel Corry",
+    duration: "3:15"
+  },
+  {
+    artist: "Meduza",
+    track: "Paradise",
+    videoId: "N-FqJzC3tA8",
+    title: "Meduza - Paradise ft. Dermot Kennedy (Official Music Video)",
+    channelTitle: "Meduza",
+    duration: "2:50"
+  },
+
+  // Hip-Hop/Rap additions
+  {
+    artist: "Metro Boomin",
+    track: "Creepin'",
+    videoId: "61ymOWwOwuk",
+    title: "Metro Boomin, The Weeknd, 21 Savage - Creepin' (Official Music Video)",
+    channelTitle: "Metro Boomin",
+    duration: "4:21"
+  },
+  {
+    artist: "Jack Harlow",
+    track: "First Class",
+    videoId: "yQBImEeXNZ4",
+    title: "Jack Harlow - First Class (Official Music Video)",
+    channelTitle: "Jack Harlow",
+    duration: "2:53"
+  },
+  {
+    artist: "Lil Nas X",
+    track: "STAR WALKIN'",
+    videoId: "HYsz1hP0BFo",
+    title: "Lil Nas X - STAR WALKIN' (League of Legends Worlds Anthem) (Official Music Video)",
+    channelTitle: "Lil Nas X",
+    duration: "3:30"
+  },
+  {
+    artist: "Ice Spice",
+    track: "In Ha Mood",
+    videoId: "kthjUaE-A5g",
+    title: "Ice Spice - In Ha Mood (Official Music Video)",
+    channelTitle: "Ice Spice",
+    duration: "2:09"
+  },
+
+  // R&B/Soul additions
+  {
+    artist: "SZA",
+    track: "Kill Bill",
+    videoId: "61ymOWwOwuk",
+    title: "SZA - Kill Bill (Official Music Video)",
+    channelTitle: "SZA",
+    duration: "2:33"
+  },
+  {
+    artist: "SZA",
+    track: "Snooze",
+    videoId: "_DxfXGHh4sY",
+    title: "SZA - Snooze (Official Music Video)",
+    channelTitle: "SZA",
+    duration: "3:21"
+  },
+  {
+    artist: "Beyoncé",
+    track: "CUFF IT",
+    videoId: "yHQdJA0aBHo",
+    title: "Beyoncé - CUFF IT (Official Music Video)",
+    channelTitle: "Beyoncé",
+    duration: "3:45"
+  },
+  {
+    artist: "Beyoncé",
+    track: "BREAK MY SOUL",
+    videoId: "yjki-9Pthh0",
+    title: "Beyoncé - BREAK MY SOUL (Official Music Video)",
+    channelTitle: "Beyoncé",
+    duration: "4:38"
+  },
+
+  // Latin additions
+  {
+    artist: "Karol G",
+    track: "TQG",
+    videoId: "Uez8fVbI-cY",
+    title: "KAROL G, Shakira - TQG (Official Music Video)",
+    channelTitle: "Karol G",
+    duration: "3:18"
+  },
+  {
+    artist: "Peso Pluma",
+    track: "Ella Baila Sola",
+    videoId: "vtSqD-lLvcA",
+    title: "Eslabon Armado y Peso Pluma - Ella Baila Sola (Official Music Video)",
+    channelTitle: "Peso Pluma",
+    duration: "2:46"
+  },
+  {
+    artist: "Rauw Alejandro",
+    track: "Desenfocao'",
+    videoId: "YNp1sA5jGmI",
+    title: "Rauw Alejandro - Desenfocao' (Official Music Video)",
+    channelTitle: "Rauw Alejandro",
+    duration: "3:10"
+  },
+
+  // K-Pop additions for variety
+  {
+    artist: "Jungkook",
+    track: "Seven",
+    videoId: "UUSbUBYqU_8",
+    title: "Jung Kook - Seven (feat. Latto) (Official Music Video)",
+    channelTitle: "HYBE LABELS",
+    duration: "3:04"
+  },
+  {
+    artist: "NewJeans",
+    track: "Super Shy",
+    videoId: "ArmDp-zijuc",
+    title: "NewJeans - Super Shy (Official Music Video)",
+    channelTitle: "HYBE LABELS",
+    duration: "2:34"
+  },
+
+  // More tracks with "dance", "party", "pop" keywords
+  {
+    artist: "Meghan Trainor",
+    track: "Made You Look",
+    videoId: "aLCWstl6zFc",
+    title: "Meghan Trainor - Made You Look (Official Music Video)",
+    channelTitle: "Meghan Trainor",
+    duration: "2:14"
+  },
+  {
+    artist: "Ava Max",
+    track: "Kings & Queens",
+    videoId: "jH1RNk8954Q",
+    title: "Ava Max - Kings & Queens (Official Music Video)",
+    channelTitle: "Ava Max",
+    duration: "2:43"
+  },
+  {
+    artist: "Doja Cat",
+    track: "Boss B*tch",
+    videoId: "RsW66teC0BQ",
+    title: "Doja Cat - Boss B*tch (Official Music Video)",
+    channelTitle: "Doja Cat",
+    duration: "2:14"
+  },
+  {
+    artist: "Ariana Grande",
+    track: "34+35",
+    videoId: "B6_iQvaIjXw",
+    title: "Ariana Grande - 34+35 (Official Music Video)",
+    channelTitle: "Ariana Grande",
+    duration: "3:01"
+  },
+  {
+    artist: "Nicki Minaj",
+    track: "Super Freaky Girl",
+    videoId: "J9Zjgb03FMQ",
+    title: "Nicki Minaj - Super Freaky Girl (Official Music Video)",
+    channelTitle: "Nicki Minaj",
+    duration: "3:14"
+  },
+  {
+    artist: "Lizzo",
+    track: "Juice",
+    videoId: "XaCrQL_8eMY",
+    title: "Lizzo - Juice (Official Music Video)",
+    channelTitle: "Lizzo",
+    duration: "3:15"
+  },
+  {
+    artist: "Charli XCX",
+    track: "Beg For You",
+    videoId: "N7gVxxqk2Og",
+    title: "Charli XCX - Beg For You (feat. Rina Sawayama) (Official Music Video)",
+    channelTitle: "Charli XCX",
+    duration: "2:58"
+  },
+  {
+    artist: "Rita Ora",
+    track: "Your Song",
+    videoId: "j6jCJpRBVaU",
+    title: "Rita Ora - Your Song (Official Music Video)",
+    channelTitle: "Rita Ora",
+    duration: "3:02"
+  },
+  {
+    artist: "Becky G",
+    track: "MAMIII",
+    videoId: "wt2wYJVZ4yI",
+    title: "Becky G x KAROL G - MAMIII (Official Music Video)",
+    channelTitle: "Becky G",
+    duration: "3:44"
+  },
+  {
+    artist: "Anne-Marie",
+    track: "2002",
+    videoId: "Il-an3K9pjg",
+    title: "Anne-Marie - 2002 (Official Music Video)",
+    channelTitle: "Anne-Marie",
+    duration: "3:07"
+  },
+  {
+    artist: "Jessie J",
+    track: "Bang Bang",
+    videoId: "0HDdjwpPM3Y",
+    title: "Jessie J, Ariana Grande, Nicki Minaj - Bang Bang (Official Music Video)",
+    channelTitle: "Jessie J",
+    duration: "3:23"
+  },
+  {
+    artist: "Little Mix",
+    track: "Black Magic",
+    videoId: "MkElfR_NPBI",
+    title: "Little Mix - Black Magic (Official Music Video)",
+    channelTitle: "Little Mix",
+    duration: "3:32"
+  },
+  {
+    artist: "Fifth Harmony",
+    track: "Work from Home",
+    videoId: "5GL9JoH4Sws",
+    title: "Fifth Harmony - Work from Home (Official Music Video) ft. Ty Dolla $ign",
+    channelTitle: "Fifth Harmony",
+    duration: "3:34"
+  },
+  {
+    artist: "Iggy Azalea",
+    track: "Fancy",
+    videoId: "O-zpOMYRi0w",
+    title: "Iggy Azalea - Fancy (Official Music Video) ft. Charli XCX",
+    channelTitle: "Iggy Azalea",
+    duration: "3:02"
+  },
+  {
+    artist: "Kesha",
+    track: "TiK ToK",
+    videoId: "iP6XpLQM2Cs",
+    title: "Kesha - TiK ToK (Official Music Video)",
+    channelTitle: "Kesha",
+    duration: "3:20"
+  },
+  {
+    artist: "Britney Spears",
+    track: "Work B**ch",
+    videoId: "pt8VYOfr8To",
+    title: "Britney Spears - Work B**ch (Official Music Video)",
+    channelTitle: "Britney Spears",
+    duration: "4:08"
+  },
+  {
+    artist: "Christina Aguilera",
+    track: "Genie In A Bottle",
+    videoId: "kIDWgqDBNXA",
+    title: "Christina Aguilera - Genie In A Bottle (Official Music Video)",
+    channelTitle: "Christina Aguilera",
+    duration: "3:36"
+  },
+  {
+    artist: "Ellie Goulding",
+    track: "Lights",
+    videoId: "0NKUpo_xKyQ",
+    title: "Ellie Goulding - Lights (Official Music Video)",
+    channelTitle: "Ellie Goulding",
+    duration: "3:31"
+  },
+  {
+    artist: "Zara Larsson",
+    track: "Lush Life",
+    videoId: "tD4HCZe-tew",
+    title: "Zara Larsson - Lush Life (Official Music Video)",
+    channelTitle: "Zara Larsson",
+    duration: "3:20"
+  },
+  {
+    artist: "Clean Bandit",
+    track: "Rather Be",
+    videoId: "m-M1AtrxztU",
+    title: "Clean Bandit - Rather Be (Official Music Video) ft. Jess Glynne",
+    channelTitle: "Clean Bandit",
+    duration: "3:47"
+  },
+  {
+    artist: "Galantis",
+    track: "Runaway (U & I)",
+    videoId: "5XR7naZ_zZA",
+    title: "Galantis - Runaway (U & I) (Official Music Video)",
+    channelTitle: "Galantis",
+    duration: "3:47"
+  },
+  {
+    artist: "Martin Garrix",
+    track: "Animals",
+    videoId: "gCYcHz2k5x0",
+    title: "Martin Garrix - Animals (Official Music Video)",
+    channelTitle: "Martin Garrix",
+    duration: "3:10"
+  },
+  {
+    artist: "Alan Walker",
+    track: "Faded",
+    videoId: "60ItHLz5WEA",
+    title: "Alan Walker - Faded (Official Music Video)",
+    channelTitle: "Alan Walker",
+    duration: "3:32"
+  },
+  {
+    artist: "Kygo",
+    track: "Firestone",
+    videoId: "9Sc-ir2UwGU",
+    title: "Kygo - Firestone (Official Music Video) ft. Conrad Sewell",
+    channelTitle: "Kygo",
+    duration: "4:33"
   }
 ]
 

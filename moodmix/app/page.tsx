@@ -578,7 +578,7 @@ export default function Home() {
               >
                 <div className="mb-8">
                   <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                    How are you{" "}
+                    Feeling{" "}
                     <AnimatedTextCycle 
                       words={feelingWords}
                       interval={2000}
@@ -593,7 +593,7 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.8 }}
                   >
-                    Discover the perfect soundtrack for your emotions. Let AI curate your musical journey based on how you feel right now.
+                    Let&apos;s find the perfect soundtrack for your current vibe. AI-curated playlists that match your energy and mood.
                   </motion.p>
                 </div>
               </motion.div>
@@ -643,7 +643,7 @@ export default function Home() {
                         {selectedMood} Vibes
                       </h3>
                       <p className="text-white/80 mb-6">
-                        Curating the perfect {selectedMood.toLowerCase()} playlist just for you...
+                        Finding your perfect {selectedMood.toLowerCase()} tracks...
                       </p>
                       <motion.div
                         className="w-full bg-white/20 rounded-full h-2 mb-4 overflow-hidden"
